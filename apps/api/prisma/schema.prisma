@@ -1,0 +1,314 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Plan {
+  FREE
+  PLUS
+  PRO
+}
+
+enum Sex {
+  MALE
+  FEMALE
+}
+
+enum DogSize {
+  SMALL
+  MEDIUM
+  LARGE
+}
+
+enum ActivityLevel {
+  CALM
+  MODERATE
+  ACTIVE
+}
+
+enum SwipeDirection {
+  LIKE
+  PASS
+}
+
+enum MatchStatus {
+  PENDING
+  MATCHED
+  UNMATCHED
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+}
+
+enum AllergySeverity {
+  MILD
+  MODERATE
+  SEVERE
+}
+
+enum MedicationFrequency {
+  DAILY
+  WEEKLY
+  MONTHLY
+  AS_NEEDED
+}
+
+enum AuditAction {
+  REGISTER
+  LOGIN
+  LOGOUT
+  PASSWORD_CHANGE
+  ACCOUNT_DELETE
+  DATA_EXPORT
+  PROFILE_UPDATE
+}
+
+// ─── Core ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique @db.VarChar(255)
+  passwordHash       String
+  emailVerified      Boolean   @default(false)
+  emailVerifyToken   String?
+  resetToken         String?
+  resetTokenExp      DateTime?
+
+  firstName          String?   @db.VarChar(100)
+  lastName           String?   @db.VarChar(100)
+  phoneEncrypted     String?   // AES-256-GCM
+
+  locationLat        Float?
+  locationLng        Float?
+  locationCity       String?   @db.VarChar(100)
+  locationConsent    Boolean   @default(false)
+
+  plan               Plan      @default(FREE)
+  planExpiresAt      DateTime?
+
+  consentTerms       DateTime
+  consentPrivacy     DateTime
+  consentMarketing   DateTime?
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  lastLoginAt        DateTime?
+  lastIpHash         String?
+  deletedAt          DateTime?
+
+  dogs               Dog[]
+  refreshTokens      RefreshToken[]
+  auditLogs          AuditLog[]
+  waitlist           Waitlist?
+
+  @@index([email])
+  @@index([deletedAt])
+}
+
+model Dog {
+  id                  String        @id @default(cuid())
+  ownerId             String
+  owner               User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  name                String        @db.VarChar(50)
+  breed               String?       @db.VarChar(100)
+  birthDate           DateTime?
+  sex                 Sex
+  size                DogSize
+  chipNumberEncrypted String?       // AES-256-GCM
+
+  bio                 String?       @db.VarChar(500)
+  traits              String[]
+  activityLevel       ActivityLevel @default(MODERATE)
+
+  weight              Float?
+
+  photos              Photo[]
+  weightHistory       WeightEntry[]
+  vaccinations        Vaccination[]
+  visits              VetVisit[]
+  medications         Medication[]
+  allergies           Allergy[]
+  swipesGiven         Swipe[]       @relation("Swiper")
+  swipesReceived      Swipe[]       @relation("Swipee")
+
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  deletedAt           DateTime?
+
+  @@index([ownerId])
+  @@index([deletedAt])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  dogId     String
+  dog       Dog      @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  @@index([dogId])
+}
+
+// ─── MachDog ──────────────────────────────────────────────────────────────────
+
+model Swipe {
+  id        String         @id @default(cuid())
+  swiperId  String
+  swipee    Dog            @relation("Swipee", fields: [swipeeId], references: [id], onDelete: Cascade)
+  swipeeId  String
+  swiper    Dog            @relation("Swiper", fields: [swiperId], references: [id], onDelete: Cascade)
+  direction SwipeDirection
+  createdAt DateTime       @default(now())
+
+  @@unique([swiperId, swipeeId])
+  @@index([swipeeId])
+}
+
+model Match {
+  id            String      @id @default(cuid())
+  dogAId        String
+  dogBId        String
+  status        MatchStatus @default(MATCHED)
+  lastMessageAt DateTime?
+  createdAt     DateTime    @default(now())
+
+  messages      Message[]
+
+  @@unique([dogAId, dogBId])
+  @@index([dogAId])
+  @@index([dogBId])
+}
+
+model Message {
+  id        String        @id @default(cuid())
+  matchId   String
+  match     Match         @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  senderId  String
+  text      String        @db.VarChar(2000)
+  status    MessageStatus @default(SENT)
+  createdAt DateTime      @default(now())
+
+  @@index([matchId])
+}
+
+// ─── PawPanel ─────────────────────────────────────────────────────────────────
+
+model WeightEntry {
+  id        String   @id @default(cuid())
+  dogId     String
+  dog       Dog      @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  weightKg  Float
+  date      DateTime
+  createdAt DateTime @default(now())
+
+  @@index([dogId])
+}
+
+model Vaccination {
+  id         String    @id @default(cuid())
+  dogId      String
+  dog        Dog       @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  name       String    @db.VarChar(100)
+  date       DateTime
+  validUntil DateTime?
+  vetId      String?
+  photoUrl   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([dogId])
+}
+
+model VetVisit {
+  id          String   @id @default(cuid())
+  dogId       String
+  dog         Dog      @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  date        DateTime
+  notes       String?  @db.VarChar(2000)
+  vetId       String?
+  attachments String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([dogId])
+}
+
+model Medication {
+  id         String              @id @default(cuid())
+  dogId      String
+  dog        Dog                 @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  name       String              @db.VarChar(100)
+  startDate  DateTime
+  endDate    DateTime?
+  dosage     String              @db.VarChar(100)
+  frequency  MedicationFrequency
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
+
+  @@index([dogId])
+}
+
+model Allergy {
+  id        String          @id @default(cuid())
+  dogId     String
+  dog       Dog             @relation(fields: [dogId], references: [id], onDelete: Cascade)
+  name      String          @db.VarChar(100)
+  severity  AllergySeverity
+  notes     String?         @db.VarChar(500)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([dogId])
+}
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model AuditLog {
+  id        String      @id @default(cuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    AuditAction
+  ipHash    String?
+  createdAt DateTime    @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ─── Waitlist ─────────────────────────────────────────────────────────────────
+
+model Waitlist {
+  id              String   @id @default(cuid())
+  email           String   @unique @db.VarChar(255)
+  city            String?  @db.VarChar(100)
+  acceptMarketing Boolean  @default(false)
+  userId          String?  @unique
+  user            User?    @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
+
+  @@index([createdAt])
+}
