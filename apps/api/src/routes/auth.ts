@@ -7,6 +7,16 @@ import { sendVerificationEmail } from '../lib/email';
 import { logger } from '../lib/logger';
 import crypto from 'crypto';
 
+// Computed once on first login attempt — guarantees constant-time response
+// when the requested email does not exist (prevents timing-based enumeration).
+let timingProtectionHash: Promise<string> | undefined;
+function getTimingHash(): Promise<string> {
+  if (!timingProtectionHash) {
+    timingProtectionHash = hashPassword('__timing_protection_dummy__');
+  }
+  return timingProtectionHash;
+}
+
 export async function authRoutes(app: FastifyInstance): Promise<void> {
   // Strict rate limit on auth endpoints: 5 attempts per 15 min per IP
   await app.register(rateLimit, {
@@ -66,8 +76,12 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     const { email, password } = parsed.data;
     const user = await app.prisma.user.findUnique({ where: { email, deletedAt: null } });
 
-    // Constant-time response to prevent user enumeration
-    if (!user || !(await verifyPassword(user.passwordHash, password))) {
+    // Always run Argon2 — short-circuiting on !user would create a timing oracle
+    // that reveals whether an email exists (~1ms vs ~100ms difference).
+    const hashToVerify = user?.passwordHash ?? (await getTimingHash());
+    const passwordValid = await verifyPassword(hashToVerify, password);
+
+    if (!user || !passwordValid) {
       return reply.status(401).send({ error: 'Nieprawidłowy e-mail lub hasło.' });
     }
 

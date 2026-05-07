@@ -1,8 +1,16 @@
 import type { FastifyInstance } from 'fastify';
+import rateLimit from '@fastify/rate-limit';
 import { WaitlistSchema } from '@pawflo/validation';
 import { logger } from '../lib/logger';
 
 export async function waitlistRoutes(app: FastifyInstance): Promise<void> {
+  // Strict limit — prevents DB spam and fake-email flooding
+  await app.register(rateLimit, {
+    max: 5,
+    timeWindow: '1 hour',
+    keyGenerator: (req) => `waitlist:${req.ip}`,
+  });
+
   app.post('/waitlist', async (req, reply) => {
     const parsed = WaitlistSchema.safeParse(req.body);
     if (!parsed.success) {
