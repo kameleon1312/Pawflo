@@ -4,6 +4,10 @@ import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 
 export async function registerSecurity(app: FastifyInstance): Promise<void> {
+  if (process.env['NODE_ENV'] === 'production' && !process.env['CORS_ORIGIN']) {
+    throw new Error('CORS_ORIGIN must be set in production');
+  }
+
   await app.register(helmet, {
     contentSecurityPolicy: {
       directives: {

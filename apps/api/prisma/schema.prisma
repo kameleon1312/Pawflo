@@ -78,10 +78,10 @@ model User {
   id                 String    @id @default(cuid())
   email              String    @unique @db.VarChar(255)
   passwordHash       String
-  emailVerified      Boolean   @default(false)
-  emailVerifyToken   String?
-  resetToken         String?
-  resetTokenExp      DateTime?
+  emailVerified          Boolean   @default(false)
+  emailVerifyTokenHash   String?   // SHA-256 hash of the token sent by email
+  resetTokenHash         String?   // SHA-256 hash of the token sent by email
+  resetTokenExp          DateTime?
 
   firstName          String?   @db.VarChar(100)
   lastName           String?   @db.VarChar(100)

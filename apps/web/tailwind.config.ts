@@ -9,8 +9,9 @@ const config: Config = {
   theme: {
     extend: {
       colors: Colors,
-      spacing: Spacing,
-      borderRadius: BorderRadius,
+      // Tailwind requires string values — convert numeric RN tokens to CSS pixel strings
+      spacing: Object.fromEntries(Object.entries(Spacing).map(([k, v]) => [k, `${v}px`])),
+      borderRadius: Object.fromEntries(Object.entries(BorderRadius).map(([k, v]) => [k, `${v}px`])),
       fontFamily: {
         serif: ['Fraunces', 'Georgia', 'serif'],
         sans: ['Cabinet Grotesk', 'system-ui', 'sans-serif'],

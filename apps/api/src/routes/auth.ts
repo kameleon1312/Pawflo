@@ -2,7 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
 import { RegisterSchema, LoginSchema, RefreshTokenSchema } from '@pawflo/validation';
 import { hashPassword, verifyPassword } from '../lib/crypto';
-import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../lib/jwt';
+import { signAccessToken, signRefreshToken, verifyRefreshToken, hashToken } from '../lib/jwt';
 import { sendVerificationEmail } from '../lib/email';
 import { logger } from '../lib/logger';
 import crypto from 'crypto';
@@ -24,32 +24,36 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 
     const { email, password } = parsed.data;
     const existing = await app.prisma.user.findUnique({ where: { email } });
+
     if (existing) {
-      return reply.status(409).send({ error: 'Konto z tym adresem już istnieje.' });
+      // Silent: don't reveal whether this email is registered (anti-enumeration)
+      logger.warn({ event: 'auth.register.duplicate', userId: existing.id }, 'Duplicate register attempt');
+      return reply.status(201).send({ ok: true });
     }
 
     const passwordHash = await hashPassword(password);
-    const emailVerifyToken = crypto.randomBytes(32).toString('hex');
+    const rawToken = crypto.randomBytes(32).toString('hex');
+    const emailVerifyTokenHash = hashToken(rawToken);
 
     const user = await app.prisma.user.create({
       data: {
         email,
         passwordHash,
-        emailVerifyToken,
+        emailVerifyTokenHash,
         consentTerms: new Date(),
         consentPrivacy: new Date(),
       },
-      select: { id: true, email: true, emailVerified: true },
+      select: { id: true },
     });
 
     await app.prisma.auditLog.create({
       data: { userId: user.id, action: 'REGISTER', ipHash: hashIp(req.ip) },
     });
 
-    await sendVerificationEmail(email, emailVerifyToken);
+    await sendVerificationEmail(email, rawToken);
     logger.info({ event: 'auth.register', userId: user.id }, 'User registered');
 
-    return reply.status(201).send({ user });
+    return reply.status(201).send({ ok: true });
   });
 
   // POST /auth/login
@@ -68,10 +72,15 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     }
 
     const accessToken = signAccessToken(user.id);
-    const refreshToken = signRefreshToken(user.id);
+    const rawRefreshToken = signRefreshToken(user.id);
 
+    // Store only the hash of the refresh token — raw JWT never written to DB.
     await app.prisma.refreshToken.create({
-      data: { userId: user.id, token: refreshToken, expiresAt: new Date(Date.now() + 7 * 86_400_000) },
+      data: {
+        userId: user.id,
+        token: hashToken(rawRefreshToken),
+        expiresAt: new Date(Date.now() + 7 * 86_400_000),
+      },
     });
 
     await app.prisma.user.update({
@@ -84,7 +93,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     });
 
     logger.info({ event: 'auth.login', userId: user.id }, 'User logged in');
-    return reply.send({ accessToken, refreshToken, user: { id: user.id, email: user.email, plan: user.plan } });
+    return reply.send({ accessToken, refreshToken: rawRefreshToken, user: { id: user.id, email: user.email, plan: user.plan } });
   });
 
   // POST /auth/refresh
@@ -101,8 +110,9 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(401).send({ error: 'Token nieprawidłowy lub wygasły.' });
     }
 
+    const tokenHash = hashToken(refreshToken);
     const stored = await app.prisma.refreshToken.findFirst({
-      where: { token: refreshToken, userId: payload.sub, revokedAt: null },
+      where: { token: tokenHash, userId: payload.sub, revokedAt: null },
     });
 
     if (!stored || stored.expiresAt < new Date()) {
@@ -113,13 +123,17 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     await app.prisma.refreshToken.update({ where: { id: stored.id }, data: { revokedAt: new Date() } });
 
     const newAccessToken = signAccessToken(payload.sub);
-    const newRefreshToken = signRefreshToken(payload.sub);
+    const newRawRefreshToken = signRefreshToken(payload.sub);
 
     await app.prisma.refreshToken.create({
-      data: { userId: payload.sub, token: newRefreshToken, expiresAt: new Date(Date.now() + 7 * 86_400_000) },
+      data: {
+        userId: payload.sub,
+        token: hashToken(newRawRefreshToken),
+        expiresAt: new Date(Date.now() + 7 * 86_400_000),
+      },
     });
 
-    return reply.send({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+    return reply.send({ accessToken: newAccessToken, refreshToken: newRawRefreshToken });
   });
 
   // POST /auth/logout
@@ -127,7 +141,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     const parsed = RefreshTokenSchema.safeParse(req.body);
     if (parsed.success) {
       await app.prisma.refreshToken.updateMany({
-        where: { token: parsed.data.refreshToken },
+        where: { token: hashToken(parsed.data.refreshToken) },
         data: { revokedAt: new Date() },
       });
     }

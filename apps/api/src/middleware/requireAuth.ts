@@ -3,7 +3,7 @@ import { verifyAccessToken } from '../lib/jwt';
 
 declare module 'fastify' {
   interface FastifyRequest {
-    userId: string;
+    userId: string | undefined;
   }
 }
 

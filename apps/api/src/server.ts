@@ -1,11 +1,15 @@
 import Fastify from 'fastify';
-import { logger } from './lib/logger';
+import { logger, pinoOptions } from './lib/logger';
 import { registerSecurity } from './plugins/security';
 import { prismaPlugin } from './plugins/prisma';
 import { authRoutes } from './routes/auth';
 import { waitlistRoutes } from './routes/waitlist';
 
-const app = Fastify({ logger });
+const app = Fastify({
+  logger: pinoOptions,   // pass config object — Fastify creates its own pino instance
+  bodyLimit: 1_048_576,  // 1 MB — prevents payload flooding
+  trustProxy: true,      // correct client IP behind reverse proxy / load balancer
+});
 
 async function bootstrap(): Promise<void> {
   await registerSecurity(app);

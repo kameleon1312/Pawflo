@@ -1,6 +1,6 @@
 import pino from 'pino';
 
-export const logger = pino({
+export const pinoOptions: pino.LoggerOptions = {
   level: process.env['LOG_LEVEL'] ?? 'info',
   transport:
     process.env['NODE_ENV'] !== 'production'
@@ -22,4 +22,7 @@ export const logger = pino({
     ],
     censor: '[REDACTED]',
   },
-});
+};
+
+// Standalone logger for use outside of Fastify request context (plugins, libs, etc.)
+export const logger = pino(pinoOptions);
