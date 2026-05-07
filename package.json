@@ -1,0 +1,24 @@
+{
+  "name": "pawflow",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:api": "pnpm --filter @pawflow/api dev",
+    "dev:web": "pnpm --filter @pawflow/web dev",
+    "dev:mobile": "pnpm --filter @pawflow/mobile dev",
+    "dev": "pnpm run --parallel \"/^dev:.*/\"",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "type-check": "pnpm -r type-check",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "prettier": "^3.2.0",
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.15.0"
+  }
+}
