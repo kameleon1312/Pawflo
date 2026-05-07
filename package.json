@@ -8,14 +8,16 @@
     "dev:mobile": "pnpm --filter @pawflo/mobile dev",
     "dev": "pnpm run --parallel \"/^dev:.*/\"",
     "build": "pnpm -r build",
-    "lint": "pnpm -r lint",
+    "lint": "pnpm -r --if-present lint",
     "type-check": "pnpm -r type-check",
-    "test": "pnpm -r test"
+    "test": "pnpm -r --if-present test"
   },
   "devDependencies": {
-    "typescript": "^5.4.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.2.0",
+    "eslint": "^8.57.0",
     "prettier": "^3.2.0",
-    "eslint": "^8.57.0"
+    "typescript": "^5.4.0"
   },
   "engines": {
     "node": ">=20.0.0",

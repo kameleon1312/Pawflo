@@ -26,14 +26,14 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    Fraunces_500Medium,
-    Fraunces_500Medium_Italic,
-    Fraunces_700Bold,
-    Fraunces_700Bold_Italic,
-    // Cabinet Grotesk loaded from local assets
-    CabinetGrotesk_400Regular: require('../assets/fonts/CabinetGrotesk-Regular.otf'),
-    CabinetGrotesk_500Medium: require('../assets/fonts/CabinetGrotesk-Medium.otf'),
-    CabinetGrotesk_700Bold: require('../assets/fonts/CabinetGrotesk-Bold.otf'),
+    // Keys must match Fonts.serif / Fonts.sans from @pawflo/theme
+    'Fraunces': Fraunces_500Medium,
+    'Fraunces-Italic': Fraunces_500Medium_Italic,
+    'Fraunces-Bold': Fraunces_700Bold,
+    'Fraunces-BoldItalic': Fraunces_700Bold_Italic,
+    'Cabinet Grotesk': require('../assets/fonts/CabinetGrotesk-Regular.otf'),
+    'Cabinet Grotesk-Medium': require('../assets/fonts/CabinetGrotesk-Medium.otf'),
+    'Cabinet Grotesk-Bold': require('../assets/fonts/CabinetGrotesk-Bold.otf'),
   });
 
   useEffect(() => {
