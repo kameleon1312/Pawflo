@@ -1,0 +1,22 @@
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors, Fonts, FontSize } from '@pawflow/theme';
+
+// TODO: implement Profile screen with dog management
+export default function ProfileScreen() {
+  return (
+    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+      <View style={styles.center}>
+        <Text style={styles.title}>Profil</Text>
+        <Text style={styles.subtitle}>Ustawienia konta — wkrótce</Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: Colors.ink },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  title: { fontFamily: Fonts.serif, fontSize: FontSize.h1, color: Colors.cream },
+  subtitle: { fontFamily: Fonts.sans, fontSize: FontSize.body, color: Colors.textFaint, marginTop: 8 },
+});

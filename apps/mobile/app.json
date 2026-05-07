@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "PawFlow",
+    "slug": "pawflow",
+    "scheme": "pawflow",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F8EFE2"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "pl.pawflow.app",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "PawFlow używa lokalizacji do pokazania pobliskich psów i usług.",
+        "NSCameraUsageDescription": "PawFlow używa aparatu do dodawania zdjęć psa.",
+        "NSPhotoLibraryUsageDescription": "PawFlow używa galerii do wyboru zdjęć psa.",
+        "NSFaceIDUsageDescription": "Użyj Face ID do szybkiego logowania."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#F8EFE2"
+      },
+      "package": "pl.pawflow.app",
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-local-authentication",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#F08A8A"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

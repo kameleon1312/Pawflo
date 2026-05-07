@@ -1,0 +1,31 @@
+import { View, Text, StyleSheet } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Colors, Fonts, FontSize } from '@pawflow/theme';
+
+// TODO: implement full LoginScreen (step 8 of workflow)
+export default function LoginScreen() {
+  return (
+    <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
+      <View style={styles.center}>
+        <Text style={styles.logo}>PawFlow</Text>
+        <Text style={styles.placeholder}>Ekran logowania — wkrótce</Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: { flex: 1, backgroundColor: Colors.ink },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  logo: {
+    fontFamily: Fonts.serif,
+    fontSize: FontSize.h1,
+    color: Colors.cream,
+  },
+  placeholder: {
+    fontFamily: Fonts.sans,
+    fontSize: FontSize.body,
+    color: Colors.textFaint,
+    marginTop: 8,
+  },
+});
