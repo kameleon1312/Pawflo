@@ -1,5 +1,5 @@
-{
-  "name": "@pawflow/mobile",
+﻿{
+  "name": "@pawflo/mobile",
   "version": "0.1.0",
   "private": true,
   "main": "expo-router/entry",
@@ -35,10 +35,10 @@
     "react-hook-form": "^7.51.0",
     "@hookform/resolvers": "^3.6.0",
     "zod": "^3.23.0",
-    "@pawflow/theme": "workspace:*",
-    "@pawflow/types": "workspace:*",
-    "@pawflow/validation": "workspace:*",
-    "@pawflow/utils": "workspace:*"
+    "@pawflo/theme": "workspace:*",
+    "@pawflo/types": "workspace:*",
+    "@pawflo/validation": "workspace:*",
+    "@pawflo/utils": "workspace:*"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",

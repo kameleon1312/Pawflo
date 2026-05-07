@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 const FOOTER_LINKS = {
   Produkt: [
@@ -24,7 +24,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <p className="font-serif text-2xl font-bold text-cream mb-3">PawFlow</p>
+            <p className="font-serif text-2xl font-bold text-cream mb-3">PawFlo</p>
             <p className="font-sans text-sm text-textFaint leading-relaxed">
               Pierwsza polska aplikacja łącząca właścicieli psów.
             </p>
@@ -54,7 +54,7 @@ export function Footer() {
 
         <div className="mt-16 pt-8 border-t border-inkSoft flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="font-sans text-xs text-textFaint">
-            © {new Date().getFullYear()} PawFlow. Wszelkie prawa zastrzeżone.
+            © {new Date().getFullYear()} PawFlo. Wszelkie prawa zastrzeżone.
           </p>
           <p className="font-sans text-xs text-textFaint">
             Zrobione z ♥ dla właścicieli psów w Polsce

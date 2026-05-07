@@ -1,4 +1,4 @@
-# CLAUDE.md — PawFlow Project Rules
+﻿# CLAUDE.md — PawFlo Project Rules
 
 > Plik czytany automatycznie przez Claude Code przy każdej sesji.
 > NIE usuwaj tego komentarza — przypomina, że ten plik jest święty.
@@ -7,7 +7,7 @@
 
 ## Co to za projekt
 
-**PawFlow** — pierwsza polska aplikacja mobilna łącząca trzy światy dla właścicieli psów:
+**PawFlo** — pierwsza polska aplikacja mobilna łącząca trzy światy dla właścicieli psów:
 - **MachDog** — Tinder dla psów (swipe + dopasowania + czat)
 - **PawPanel** — cyfrowy panel zdrowia (szczepienia, wizyty, waga)
 - **PawMap** — interaktywna mapa usług (weterynarze, sklepy, groomery)
@@ -20,12 +20,12 @@
 ## ZAWSZE czytaj na początku każdej sesji
 
 Przy pierwszym uruchomieniu sesji zapoznaj się z:
-1. `PAWFLOW_INSTRUKCJA_AGENTA_VSC.md` — master instrukcja projektu (~1100 linii)
+1. `PAWFLO_INSTRUKCJA_AGENTA_VSC.md` — master instrukcja projektu (~1100 linii)
 2. `docs/ARCHITECTURE.md` — kiedy istnieje, decyzje architektoniczne
 3. `docs/SECURITY.md` — kiedy istnieje, threat model i procedury
 4. `docs/DESIGN_SYSTEM.md` — kiedy istnieje, tokeny i komponenty
 
-Jeśli pliki w `docs/` jeszcze nie istnieją, korzystaj z odpowiednich sekcji w `PAWFLOW_INSTRUKCJA_AGENTA_VSC.md`.
+Jeśli pliki w `docs/` jeszcze nie istnieją, korzystaj z odpowiednich sekcji w `PAWFLO_INSTRUKCJA_AGENTA_VSC.md`.
 
 ---
 
@@ -34,7 +34,7 @@ Jeśli pliki w `docs/` jeszcze nie istnieją, korzystaj z odpowiednich sekcji w 
 Monorepo z **pnpm workspaces** (bez Turbo na MVP).
 
 ```
-pawflow/
+pawflo/
 ├── apps/
 │   ├── mobile/        ← Expo + React Native (PRIMARY product, 80% pracy)
 │   ├── web/           ← Next.js 14 (landing + cennik + blog, 15% pracy)
@@ -60,7 +60,7 @@ pawflow/
 3. **Storage tokenów na mobile:** TYLKO `expo-secure-store` (Keychain iOS / Keystore Android). NIGDY `AsyncStorage`, `localStorage`, `SecureStore` na zwykłej React appce.
 4. **Wrażliwe pola w bazie:** AES-256-GCM encryption (numery telefonów, chip psa, adresy domowe, notatki medyczne).
 5. **Logowanie:** Pino z `redact` na: passwords, tokens, headers, PII. NIGDY nie loguj tokenów ani haseł.
-6. **Walidacja:** zawsze na frontend ORAZ backend, ten sam Zod schema z `@pawflow/validation`.
+6. **Walidacja:** zawsze na frontend ORAZ backend, ten sam Zod schema z `@pawflo/validation`.
 7. **Rate limiting:** /auth endpointy max 5 prób / 15 min per IP.
 8. **HTTPS:** TLS 1.3, HSTS header, strict CORS whitelist (tylko własne domeny).
 9. **RODO:** explicit consent na regulamin + politykę prywatności, prawo do bycia zapomnianym (30-dniowe okno), eksport danych (JSON).
@@ -68,7 +68,7 @@ pawflow/
 ### 💻 Kod
 
 1. **TypeScript strict** — zero `any`. Jeśli musisz, użyj `unknown` z type guard.
-2. **Zero hardkodowanych wartości** — kolory, fonty, spacing zawsze z `@pawflow/theme`.
+2. **Zero hardkodowanych wartości** — kolory, fonty, spacing zawsze z `@pawflo/theme`.
 3. **Zero hardkodowanych stringów** — UI po polsku przez `strings.pl.ts`.
 4. **Naming:** komponenty PascalCase, hooki `use*`, types PascalCase, files kebab-case.
 5. **Komentarze:** po angielsku w kodzie. Komentuj DLACZEGO, nie CO.
@@ -112,7 +112,7 @@ inkSoft:      #2A1F19  (secondary surfaces)
 
 - Dodawanie nowej zależności >50KB (sprawdź bundle size impact)
 - Zmiana struktury folderów
-- Modyfikacja tokenów w `@pawflow/theme`
+- Modyfikacja tokenów w `@pawflo/theme`
 - Użycie `dangerouslySetInnerHTML` lub `eval`
 - Destruktywne komendy (`rm -rf`, `DROP DATABASE`)
 - Commit secrets, .env files, klucze API
@@ -157,7 +157,7 @@ Zanim napiszesz pierwszą linię kodu nowego feature'u:
 
 **Web (`apps/web`):**
 - Next.js 14 App Router, RSC
-- Tailwind CSS (rozszerza @pawflow/theme)
+- Tailwind CSS (rozszerza @pawflo/theme)
 - Radix UI primitives (a11y), Framer Motion (animations)
 - Plausible lub PostHog self-hosted (analytics, RODO-friendly)
 
@@ -189,8 +189,8 @@ pnpm lint             # ESLint wszędzie
 pnpm test             # Vitest
 
 # Database
-pnpm --filter @pawflow/api prisma migrate dev
-pnpm --filter @pawflow/api prisma studio
+pnpm --filter @pawflo/api prisma migrate dev
+pnpm --filter @pawflo/api prisma studio
 ```
 
 ---

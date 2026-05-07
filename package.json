@@ -1,11 +1,11 @@
-{
-  "name": "pawflow",
+﻿{
+  "name": "pawflo",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev:api": "pnpm --filter @pawflow/api dev",
-    "dev:web": "pnpm --filter @pawflow/web dev",
-    "dev:mobile": "pnpm --filter @pawflow/mobile dev",
+    "dev:api": "pnpm --filter @pawflo/api dev",
+    "dev:web": "pnpm --filter @pawflo/web dev",
+    "dev:mobile": "pnpm --filter @pawflo/mobile dev",
     "dev": "pnpm run --parallel \"/^dev:.*/\"",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",

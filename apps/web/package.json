@@ -1,5 +1,5 @@
-{
-  "name": "@pawflow/web",
+﻿{
+  "name": "@pawflo/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -16,8 +16,8 @@
     "framer-motion": "^11.2.0",
     "lucide-react": "^0.378.0",
     "zod": "^3.23.0",
-    "@pawflow/theme": "workspace:*",
-    "@pawflow/validation": "workspace:*"
+    "@pawflo/theme": "workspace:*",
+    "@pawflo/validation": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

@@ -1,4 +1,4 @@
-const PILLARS = [
+﻿const PILLARS = [
   {
     name: 'MachDog',
     tagline: 'Tinder dla psów',
@@ -37,7 +37,7 @@ export function PillarsSection() {
             Trzy produkty. Jeden ekosystem.
           </h2>
           <p className="font-sans text-textMid text-lg max-w-2xl mx-auto">
-            PawFlow to jedyna aplikacja, która łączy życie towarzyskie, zdrowie i usługi dla Twojego psa.
+            PawFlo to jedyna aplikacja, która łączy życie towarzyskie, zdrowie i usługi dla Twojego psa.
           </p>
         </div>
 

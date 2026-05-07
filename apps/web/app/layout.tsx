@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next';
+﻿import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { Fraunces } from 'next/font/google';
 import './globals.css';
@@ -23,21 +23,21 @@ const cabinetGrotesk = localFont({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://pawflow.pl'),
+  metadataBase: new URL('https://pawflo.pl'),
   title: {
-    default: 'PawFlow — Znajdź soulmate\'a dla swojego psa',
-    template: '%s | PawFlow',
+    default: 'PawFlo — Znajdź soulmate\'a dla swojego psa',
+    template: '%s | PawFlo',
   },
   description:
-    'PawFlow łączy psy z okolicy. Dopasowania MachDog, panel zdrowia PawPanel i mapa usług PawMap — wszystko w jednej aplikacji mobilnej.',
+    'PawFlo łączy psy z okolicy. Dopasowania MachDog, panel zdrowia PawPanel i mapa usług PawMap — wszystko w jednej aplikacji mobilnej.',
   keywords: ['aplikacja dla psów', 'psy Polska', 'spotkania psów', 'panel zdrowia psa', 'weterynarz mapa'],
-  authors: [{ name: 'PawFlow' }],
+  authors: [{ name: 'PawFlo' }],
   openGraph: {
     type: 'website',
     locale: 'pl_PL',
-    url: 'https://pawflow.pl',
-    siteName: 'PawFlow',
-    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'PawFlow' }],
+    url: 'https://pawflo.pl',
+    siteName: 'PawFlo',
+    images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'PawFlo' }],
   },
   twitter: {
     card: 'summary_large_image',

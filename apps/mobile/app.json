@@ -1,8 +1,8 @@
-{
+﻿{
   "expo": {
-    "name": "PawFlow",
-    "slug": "pawflow",
-    "scheme": "pawflow",
+    "name": "PawFlo",
+    "slug": "pawflo",
+    "scheme": "pawflo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,11 +14,11 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "pl.pawflow.app",
+      "bundleIdentifier": "pl.pawflo.app",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "PawFlow używa lokalizacji do pokazania pobliskich psów i usług.",
-        "NSCameraUsageDescription": "PawFlow używa aparatu do dodawania zdjęć psa.",
-        "NSPhotoLibraryUsageDescription": "PawFlow używa galerii do wyboru zdjęć psa.",
+        "NSLocationWhenInUseUsageDescription": "PawFlo używa lokalizacji do pokazania pobliskich psów i usług.",
+        "NSCameraUsageDescription": "PawFlo używa aparatu do dodawania zdjęć psa.",
+        "NSPhotoLibraryUsageDescription": "PawFlo używa galerii do wyboru zdjęć psa.",
         "NSFaceIDUsageDescription": "Użyj Face ID do szybkiego logowania."
       }
     },
@@ -27,7 +27,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#F8EFE2"
       },
-      "package": "pl.pawflow.app",
+      "package": "pl.pawflo.app",
       "permissions": [
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",

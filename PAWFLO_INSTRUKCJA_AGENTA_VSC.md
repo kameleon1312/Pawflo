@@ -1,4 +1,4 @@
-# PawFlow — Master Instrukcja Wdrożeniowa dla Agenta AI w VS Code
+﻿# PawFlo — Master Instrukcja Wdrożeniowa dla Agenta AI w VS Code
 
 > **Wersja 3.0** | Maj 2026
 > Dokument wzorcowy dla agenta (Claude Code / Cursor / GitHub Copilot)
@@ -28,7 +28,7 @@
 
 ### 1.1 Misja
 
-PawFlow to **pierwsza polska aplikacja, która łączy psy z okolicy** i daje właścicielom kompletny ekosystem cyfrowy: dopasowywanie, panel zdrowia, mapa usług, społeczność.
+PawFlo to **pierwsza polska aplikacja, która łączy psy z okolicy** i daje właścicielom kompletny ekosystem cyfrowy: dopasowywanie, panel zdrowia, mapa usług, społeczność.
 
 ### 1.2 Architektura na poziomie biznesu
 
@@ -68,7 +68,7 @@ PawFlow to **pierwsza polska aplikacja, która łączy psy z okolicy** i daje w�
 ### 2.2 Struktura wysokopoziomowa
 
 ```
-pawflow/                          ← otwierasz w VS Code TEN folder
+pawflo/                          ← otwierasz w VS Code TEN folder
 ├── apps/
 │   ├── mobile/                   ← Expo + React Native (główny produkt)
 │   ├── web/                      ← Next.js 14 (landing + cennik + blog)
@@ -162,8 +162,8 @@ export function signAccessToken(userId: string): string {
   return jwt.sign({ sub: userId, type: 'access' }, ACCESS_SECRET, {
     expiresIn: '15m',
     algorithm: 'HS256',
-    issuer: 'pawflow.app',
-    audience: 'pawflow-mobile',
+    issuer: 'pawflo.app',
+    audience: 'pawflo-mobile',
   });
 }
 ```
@@ -223,7 +223,7 @@ export async function registerSecurity(app: FastifyInstance) {
   });
 
   await app.register(cors, {
-    origin: ['https://pawflow.pl', 'https://app.pawflow.pl'],
+    origin: ['https://pawflo.pl', 'https://app.pawflo.pl'],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
   });
@@ -604,7 +604,7 @@ Wszystkie komponenty są w `apps/mobile/src/components/ui/` lub `apps/web/src/co
 ### 6.1 Pełna struktura
 
 ```
-pawflow/
+pawflo/
 │
 ├── apps/
 │   │
@@ -844,12 +844,12 @@ packages:
 **`package.json`** (root):
 ```json
 {
-  "name": "pawflow",
+  "name": "pawflo",
   "private": true,
   "scripts": {
-    "dev:mobile": "pnpm --filter @pawflow/mobile dev",
-    "dev:web": "pnpm --filter @pawflow/web dev",
-    "dev:api": "pnpm --filter @pawflow/api dev",
+    "dev:mobile": "pnpm --filter @pawflo/mobile dev",
+    "dev:web": "pnpm --filter @pawflo/web dev",
+    "dev:api": "pnpm --filter @pawflo/api dev",
     "dev": "pnpm run --parallel /^dev:.*/",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
@@ -942,8 +942,8 @@ apps/api/prisma/dev.db
 ### 7.2 Krok 1 — Inicjalizacja repozytorium
 
 ```bash
-mkdir pawflow
-cd pawflow
+mkdir pawflo
+cd pawflo
 git init
 pnpm init
 ```
@@ -957,7 +957,7 @@ Utwórz `.env.example` (puste, z komentarzami).
 git add .
 git commit -m "chore: initialize monorepo"
 git branch -M main
-gh repo create pawflow --private
+gh repo create pawflo --private
 git push -u origin main
 ```
 
@@ -970,7 +970,7 @@ mkdir -p packages/theme/src packages/types/src packages/validation/src packages/
 W każdym `packages/*/package.json` ustaw:
 ```json
 {
-  "name": "@pawflow/theme",
+  "name": "@pawflo/theme",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
@@ -989,7 +989,7 @@ pnpm init
 
 pnpm add fastify @fastify/helmet @fastify/cors @fastify/rate-limit @fastify/jwt
 pnpm add @prisma/client argon2 jsonwebtoken pino zod socket.io
-pnpm add @pawflow/types @pawflow/validation @pawflow/utils
+pnpm add @pawflo/types @pawflo/validation @pawflo/utils
 
 pnpm add -D typescript tsx prisma @types/jsonwebtoken @types/node
 ```
@@ -1013,7 +1013,7 @@ pnpm add expo-notifications expo-image expo-linear-gradient
 pnpm add @tanstack/react-query zustand react-hook-form @hookform/resolvers/zod
 pnpm add react-native-reanimated react-native-gesture-handler
 pnpm add react-native-maps react-native-svg
-pnpm add @pawflow/theme @pawflow/types @pawflow/validation @pawflow/api-client
+pnpm add @pawflo/theme @pawflo/types @pawflo/validation @pawflo/api-client
 
 # Fonts
 pnpm add @expo-google-fonts/fraunces expo-font
@@ -1023,7 +1023,7 @@ Skonfiguruj Expo Router w `app.json`:
 ```json
 {
   "expo": {
-    "scheme": "pawflow",
+    "scheme": "pawflo",
     "plugins": ["expo-router", "expo-secure-store"]
   }
 }
@@ -1037,13 +1037,13 @@ pnpm dlx create-next-app@latest apps/web --typescript --tailwind --app --no-src-
 cd apps/web
 
 pnpm add framer-motion lucide-react
-pnpm add @pawflow/theme @pawflow/validation
+pnpm add @pawflo/theme @pawflo/validation
 pnpm add -D @types/node
 ```
 
 Skonfiguruj `tailwind.config.ts`:
 ```typescript
-import { Colors, Spacing, BorderRadius } from '@pawflow/theme';
+import { Colors, Spacing, BorderRadius } from '@pawflo/theme';
 
 export default {
   content: ['./app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
@@ -1192,8 +1192,8 @@ enum ActivityLevel {
 
 ```bash
 cd apps/api
-docker run --name pawflow-postgres -e POSTGRES_PASSWORD=dev -p 5432:5432 -d postgres:16
-echo "DATABASE_URL=postgresql://postgres:dev@localhost:5432/pawflow" > .env
+docker run --name pawflo-postgres -e POSTGRES_PASSWORD=dev -p 5432:5432 -d postgres:16
+echo "DATABASE_URL=postgresql://postgres:dev@localhost:5432/pawflo" > .env
 
 pnpm prisma migrate dev --name init
 pnpm prisma generate
@@ -1407,9 +1407,9 @@ docs(security): add incident response procedure
 
 1. **Czyta tę instrukcję** przed rozpoczęciem nowego feature
 2. **Szuka istniejących wzorców** w kodzie zanim napisze nowy komponent
-3. **Importuje z `@pawflow/theme`** zamiast hardkodować kolory
-4. **Importuje z `@pawflow/types`** zamiast definiować lokalne typy
-5. **Walidacja przez `@pawflow/validation`** — frontend i backend ten sam schemat
+3. **Importuje z `@pawflo/theme`** zamiast hardkodować kolory
+4. **Importuje z `@pawflo/types`** zamiast definiować lokalne typy
+5. **Walidacja przez `@pawflo/validation`** — frontend i backend ten sam schemat
 6. **Mobile-first** — pisze styl bazowy dla najmniejszego ekranu
 7. **TypeScript strict** — zero `any`, pełne typy
 8. **Komentarze EN, UI po PL** z `strings.pl.ts`
@@ -1458,7 +1458,7 @@ docs(security): add incident response procedure
 W folderze `.cursorrules` (Cursor) lub `CLAUDE.md` (Claude Code) umieść:
 
 ```markdown
-You are working on PawFlow — Polish dog community + matchmaking app.
+You are working on PawFlo — Polish dog community + matchmaking app.
 
 ## ALWAYS read first
 - `docs/ARCHITECTURE.md`
@@ -1477,7 +1477,7 @@ You are working on PawFlow — Polish dog community + matchmaking app.
 
 ## Critical rules
 1. SECURITY FIRST: Argon2id passwords, JWT 15min/7d, expo-secure-store, RODO compliant
-2. NO hardcoded colors/fonts/spacing — always import from @pawflow/theme
+2. NO hardcoded colors/fonts/spacing — always import from @pawflo/theme
 3. NO `any` in TypeScript — use `unknown` if you must
 4. Mobile-first: write styles for 375px, scale up
 5. Comments in English, UI strings in Polish via strings.pl.ts
@@ -1516,7 +1516,7 @@ Wymagania:
 - Dock: 5 zakładek (Dom, MachDog, PawPanel, PawMap, Profil)
 
 Importy:
-- Colors, Fonts, FontSize z @pawflow/theme
+- Colors, Fonts, FontSize z @pawflo/theme
 - strings.pl.ts dla tekstów
 
 Animacje wejścia:
@@ -1550,7 +1550,7 @@ Sekcje (kolejność scroll):
 11. Footer
 
 Wymagania:
-- Tailwind CSS classes only (config rozszerza @pawflow/theme)
+- Tailwind CSS classes only (config rozszerza @pawflo/theme)
 - Framer Motion dla scroll animations (fade-in, stagger)
 - Mobile-first (testuj 375px before 1280px)
 - SEO meta tags w layout.tsx (title, description, og-image)
@@ -1570,7 +1570,7 @@ Po zakończeniu sprawdź:
 Zbuduj endpointy auth w apps/api/src/routes/auth.ts:
 
 POST /api/auth/register
-- Body: RegisterSchema z @pawflow/validation
+- Body: RegisterSchema z @pawflo/validation
 - Hash password z Argon2id (sekcja 3.2)
 - Email verification token
 - Audit log entry
@@ -1785,5 +1785,5 @@ Po 7 dniach masz **działającą bazę pod resztę projektu**. Bez podejmowania 
 
 ---
 
-*PawFlow Master Instrukcja Wdrożeniowa v3.0 | Maj 2026*
+*PawFlo Master Instrukcja Wdrożeniowa v3.0 | Maj 2026*
 *"Każdy pies zasługuje na świetne życie."*

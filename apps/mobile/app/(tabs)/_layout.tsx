@@ -1,5 +1,5 @@
-import { Tabs } from 'expo-router';
-import { Colors, FontSize, Fonts } from '@pawflow/theme';
+﻿import { Tabs } from 'expo-router';
+import { Colors, FontSize, Fonts } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
 
 export default function TabsLayout() {

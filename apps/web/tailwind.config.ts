@@ -1,5 +1,5 @@
-import type { Config } from 'tailwindcss';
-import { Colors, Spacing, BorderRadius } from '@pawflow/theme';
+﻿import type { Config } from 'tailwindcss';
+import { Colors, Spacing, BorderRadius } from '@pawflo/theme';
 
 const config: Config = {
   content: [

@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
-import { WaitlistSchema } from '@pawflow/validation';
+import { WaitlistSchema } from '@pawflo/validation';
 
 export function WaitlistSection() {
   const [email, setEmail] = useState('');

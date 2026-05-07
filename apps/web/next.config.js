@@ -1,8 +1,8 @@
-/** @type {import('next').NextConfig} */
+﻿/** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
     // Enable optimized package imports for workspace packages
-    optimizePackageImports: ['@pawflow/theme', '@pawflow/validation'],
+    optimizePackageImports: ['@pawflo/theme', '@pawflo/validation'],
   },
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -14,7 +14,7 @@ const nextConfig = {
     ],
   },
   // Transpile workspace packages (they ship as raw TS)
-  transpilePackages: ['@pawflow/theme', '@pawflow/validation', '@pawflow/utils'],
+  transpilePackages: ['@pawflo/theme', '@pawflo/validation', '@pawflo/utils'],
 };
 
 module.exports = nextConfig;

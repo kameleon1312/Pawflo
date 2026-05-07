@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+﻿import { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
@@ -11,7 +11,7 @@ import {
 } from '@expo-google-fonts/fraunces';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Colors } from '@pawflow/theme';
+import { Colors } from '@pawflo/theme';
 
 SplashScreen.preventAutoHideAsync();
 

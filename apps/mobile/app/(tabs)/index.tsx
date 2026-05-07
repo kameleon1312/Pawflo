@@ -1,13 +1,13 @@
-import { View, Text, StyleSheet } from 'react-native';
+﻿import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Fonts, FontSize } from '@pawflow/theme';
+import { Colors, Fonts, FontSize } from '@pawflo/theme';
 
 // TODO: implement full HomeScreen (prompt 11.1 in instrukcja)
 export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.root} edges={['top', 'bottom']}>
       <View style={styles.center}>
-        <Text style={styles.logo}>PawFlow</Text>
+        <Text style={styles.logo}>PawFlo</Text>
         <Text style={styles.subtitle}>Dom</Text>
       </View>
     </SafeAreaView>

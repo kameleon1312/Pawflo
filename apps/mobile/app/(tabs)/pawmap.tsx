@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet } from 'react-native';
+﻿import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Colors, Fonts, FontSize } from '@pawflow/theme';
+import { Colors, Fonts, FontSize } from '@pawflo/theme';
 
 // TODO: implement PawMap with react-native-maps
 export default function PawMapScreen() {

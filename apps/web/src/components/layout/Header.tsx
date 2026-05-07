@@ -1,4 +1,4 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 
 const NAV_LINKS = [
   { href: '/funkcje', label: 'Funkcje' },
@@ -17,9 +17,9 @@ export function Header() {
         <Link
           href="/"
           className="font-serif text-xl font-bold text-ink tracking-tight"
-          aria-label="PawFlow — strona główna"
+          aria-label="PawFlo — strona główna"
         >
-          PawFlow
+          PawFlo
         </Link>
 
         <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">

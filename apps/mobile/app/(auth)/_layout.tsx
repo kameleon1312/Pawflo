@@ -1,5 +1,5 @@
-import { Stack } from 'expo-router';
-import { Colors } from '@pawflow/theme';
+﻿import { Stack } from 'expo-router';
+import { Colors } from '@pawflo/theme';
 
 export default function AuthLayout() {
   return (

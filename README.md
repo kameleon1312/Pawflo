@@ -1,4 +1,4 @@
-# PawFlow
+﻿# PawFlo
 
 Polish dog community + matchmaking application.
 
@@ -6,7 +6,7 @@ Polish dog community + matchmaking application.
 
 ## Documentation
 
-- 📘 [Master instruction](./PAWFLOW_INSTRUKCJA_AGENTA_VSC.md)
+- 📘 [Master instruction](./PAWFLO_INSTRUKCJA_AGENTA_VSC.md)
 - 🤖 [Claude Code rules](./CLAUDE.md)
 - 🏗️ [Architecture](./docs/ARCHITECTURE.md) — coming soon
 - 🔒 [Security](./docs/SECURITY.md) — coming soon

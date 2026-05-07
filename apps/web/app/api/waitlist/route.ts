@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { WaitlistSchema } from '@pawflow/validation';
+﻿import { NextRequest, NextResponse } from 'next/server';
+import { WaitlistSchema } from '@pawflo/validation';
 
 export async function POST(req: NextRequest) {
   const body: unknown = await req.json();

@@ -1,8 +1,8 @@
-import * as SecureStore from 'expo-secure-store';
+﻿import * as SecureStore from 'expo-secure-store';
 
 const KEYS = {
-  ACCESS_TOKEN: 'pawflow_access_token',
-  REFRESH_TOKEN: 'pawflow_refresh_token',
+  ACCESS_TOKEN: 'pawflo_access_token',
+  REFRESH_TOKEN: 'pawflo_refresh_token',
 } as const;
 
 // Keychain (iOS) / Keystore (Android) — NEVER AsyncStorage or localStorage.

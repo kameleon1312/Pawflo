@@ -1,4 +1,4 @@
-export const strings = {
+﻿export const strings = {
   tabs: {
     home: 'Dom',
     machdog: 'MachDog',
@@ -9,7 +9,7 @@ export const strings = {
   auth: {
     loginTitle: 'Witaj z powrotem',
     loginSubtitle: 'Zaloguj się do swojego konta',
-    registerTitle: 'Dołącz do PawFlow',
+    registerTitle: 'Dołącz do PawFlo',
     registerSubtitle: 'Stwórz konto i znajdź przyjaciół dla swojego psa',
     email: 'Adres e-mail',
     password: 'Hasło',
