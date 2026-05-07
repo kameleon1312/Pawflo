@@ -1,4 +1,4 @@
-﻿import * as SecureStore from 'expo-secure-store';
+import * as SecureStore from 'expo-secure-store';
 
 const KEYS = {
   ACCESS_TOKEN: 'pawflo_access_token',

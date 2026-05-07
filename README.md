@@ -1,4 +1,4 @@
-﻿# PawFlo
+# PawFlo
 
 Polish dog community + matchmaking application.
 

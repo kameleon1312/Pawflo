@@ -1,4 +1,4 @@
-﻿export const strings = {
+export const strings = {
   tabs: {
     home: 'Dom',
     machdog: 'MachDog',

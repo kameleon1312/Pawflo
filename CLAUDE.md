@@ -1,4 +1,4 @@
-﻿# CLAUDE.md — PawFlo Project Rules
+# CLAUDE.md — PawFlo Project Rules
 
 > Plik czytany automatycznie przez Claude Code przy każdej sesji.
 > NIE usuwaj tego komentarza — przypomina, że ten plik jest święty.

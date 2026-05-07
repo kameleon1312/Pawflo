@@ -1,4 +1,4 @@
-﻿import type { Config } from 'tailwindcss';
+import type { Config } from 'tailwindcss';
 import { Colors, Spacing, BorderRadius } from '@pawflo/theme';
 
 const config: Config = {

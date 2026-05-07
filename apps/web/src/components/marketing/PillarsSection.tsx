@@ -1,4 +1,4 @@
-﻿const PILLARS = [
+const PILLARS = [
   {
     name: 'MachDog',
     tagline: 'Tinder dla psów',

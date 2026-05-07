@@ -1,4 +1,4 @@
-﻿import { Tabs } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { Colors, FontSize, Fonts } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
 

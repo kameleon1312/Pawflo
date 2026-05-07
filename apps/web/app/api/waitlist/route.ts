@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { WaitlistSchema } from '@pawflo/validation';
 
 export async function POST(req: NextRequest) {

@@ -1,4 +1,4 @@
-﻿# PawFlo — Master Instrukcja Wdrożeniowa dla Agenta AI w VS Code
+# PawFlo — Master Instrukcja Wdrożeniowa dla Agenta AI w VS Code
 
 > **Wersja 3.0** | Maj 2026
 > Dokument wzorcowy dla agenta (Claude Code / Cursor / GitHub Copilot)

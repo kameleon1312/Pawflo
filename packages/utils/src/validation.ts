@@ -1,4 +1,4 @@
-﻿// Lightweight runtime helpers — heavy validation lives in @pawflo/validation (Zod).
+// Lightweight runtime helpers — heavy validation lives in @pawflo/validation (Zod).
 
 export function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
