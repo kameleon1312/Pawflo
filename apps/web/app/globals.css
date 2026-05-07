@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-serif: 'Fraunces', Georgia, serif;
+    --font-sans: 'Cabinet Grotesk', system-ui, sans-serif;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #FAF4E9;
+    color: #1B1411;
+  }
+
+  /* Fraunces variable font — opsz 144 for hero display */
+  .font-display {
+    font-variation-settings: "opsz" 144;
+    letter-spacing: -0.035em;
+    line-height: 1.0;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Skip link for accessibility */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50
+           focus:px-4 focus:py-2 focus:bg-coral focus:text-cream focus:rounded-md;
+  }
+}
