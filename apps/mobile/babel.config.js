@@ -8,7 +8,6 @@ module.exports = function (api) {
         alias: { '@': './src' },
         extensions: ['.ts', '.tsx', '.js', '.jsx'],
       }],
-      'react-native-reanimated/plugin',
     ],
   };
 };
