@@ -1,3 +1,5 @@
+import { FadeIn } from '@/components/ui/FadeIn';
+
 const PILLARS = [
   {
     name: 'MachDog',
@@ -27,9 +29,9 @@ const PILLARS = [
 
 export function PillarsSection() {
   return (
-    <section className="bg-bone py-24 md:py-32" aria-labelledby="pillars-heading">
+    <section id="funkcje" className="bg-bone py-24 md:py-32" aria-labelledby="pillars-heading">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
+        <FadeIn className="text-center mb-16">
           <h2
             id="pillars-heading"
             className="font-serif font-bold text-ink text-4xl md:text-5xl text-balance mb-4"
@@ -39,17 +41,19 @@ export function PillarsSection() {
           <p className="font-sans text-textMid text-lg max-w-2xl mx-auto">
             PawFlo to jedyna aplikacja, która łączy życie towarzyskie, zdrowie i usługi dla Twojego psa.
           </p>
-        </div>
+        </FadeIn>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {PILLARS.map(({ name, tagline, description, color, bg }) => (
-            <article key={name} className={`${bg} rounded-2xl p-8 border border-warmLine`}>
-              <p className={`font-sans text-xs font-semibold tracking-widest uppercase ${color} mb-3`}>
-                {tagline}
-              </p>
-              <h3 className="font-serif font-bold text-ink text-3xl mb-4">{name}</h3>
-              <p className="font-sans text-textMid text-base leading-relaxed">{description}</p>
-            </article>
+          {PILLARS.map(({ name, tagline, description, color, bg }, i) => (
+            <FadeIn key={name} delay={i * 0.1}>
+              <article className={`${bg} rounded-2xl p-8 border border-warmLine h-full`}>
+                <p className={`font-sans text-xs font-semibold tracking-widest uppercase ${color} mb-3`}>
+                  {tagline}
+                </p>
+                <h3 className="font-serif font-bold text-ink text-3xl mb-4">{name}</h3>
+                <p className="font-sans text-textMid text-base leading-relaxed">{description}</p>
+              </article>
+            </FadeIn>
           ))}
         </div>
       </div>
