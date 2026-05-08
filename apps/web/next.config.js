@@ -52,9 +52,9 @@ const nextConfig = {
 };
 
 module.exports = withSentryConfig(nextConfig, {
-  // org + project needed only for source map uploads — fill in when SENTRY_AUTH_TOKEN is ready
-  // org: process.env.SENTRY_ORG,
-  // project: process.env.SENTRY_PROJECT,
+  // Source map uploads require SENTRY_AUTH_TOKEN env var (Settings → Auth Tokens in Sentry)
+  org: 'pawflo',
+  project: 'javascript-nextjs',
   silent: !process.env.CI,
   hideSourceMaps: true,
   telemetry: false,
