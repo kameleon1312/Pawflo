@@ -1,24 +1,17 @@
 import { useEffect, useRef } from 'react';
+import type { ComponentProps } from 'react';
 import { Animated, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import type { ComponentProps } from 'react';
-
-// Minimal local type — avoids declaring @react-navigation/bottom-tabs as a direct dep
-// (it's already a transitive dep of expo-router, but not resolvable by tsc without declaration).
-type TabRoute = { key: string; name: string };
-type TabDescriptor = { options: { title?: string } };
-type TabNavigation = {
-  emit: (e: { type: string; target: string; canPreventDefault: boolean }) => { defaultPrevented: boolean };
-  navigate: (name: string) => void;
-};
-export type BottomTabBarProps = {
-  state: { index: number; routes: TabRoute[] };
-  descriptors: Record<string, TabDescriptor>;
-  navigation: TabNavigation;
-};
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
+
+// Derive the tab bar props type from expo-router's Tabs component
+// so we don't need @react-navigation/bottom-tabs as a direct dependency.
+export type BottomTabBarProps = Parameters<
+  NonNullable<ComponentProps<typeof Tabs>['tabBar']>
+>[0];
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
