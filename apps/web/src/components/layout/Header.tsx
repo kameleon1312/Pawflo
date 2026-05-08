@@ -33,7 +33,7 @@ export function Header() {
       className={`sticky top-0 z-50 transition-all duration-300 ${
         scrolled || menuOpen
           ? 'bg-bone/90 backdrop-blur-md border-b border-warmLine'
-          : 'bg-transparent border-b border-transparent'
+          : 'bg-ink/80 backdrop-blur-sm border-b border-white/10'
       }`}
     >
       <nav
