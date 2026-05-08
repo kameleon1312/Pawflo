@@ -12,6 +12,7 @@
   "dependencies": {
     "@pawflo/theme": "workspace:*",
     "@pawflo/validation": "workspace:*",
+    "@prisma/client": "^5.22.0",
     "@sentry/nextjs": "^10.52.0",
     "framer-motion": "^11.2.0",
     "lucide-react": "^0.378.0",
@@ -19,6 +20,9 @@
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "zod": "^3.23.0"
+  },
+  "prisma": {
+    "schema": "../api/prisma/schema.prisma"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
