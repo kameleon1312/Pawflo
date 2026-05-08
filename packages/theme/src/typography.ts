@@ -1,6 +1,7 @@
 export const Fonts = {
-  serif: 'Fraunces',        // editorial — H1, brand, hero
-  sans: 'Cabinet Grotesk',  // UI — buttons, body, labels
+  serif: 'Fraunces',                    // editorial — H1, brand, hero
+  sans: 'Cabinet Grotesk',              // UI — buttons, body, labels
+  sansExtrabold: 'Cabinet Grotesk-Extrabold', // hero numerics, big stats
 } as const;
 
 export const FontSize = {

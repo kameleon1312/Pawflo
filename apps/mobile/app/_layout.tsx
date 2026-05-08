@@ -34,6 +34,7 @@ export default function RootLayout() {
     'Cabinet Grotesk': require('../assets/fonts/CabinetGrotesk-Regular.otf'),
     'Cabinet Grotesk-Medium': require('../assets/fonts/CabinetGrotesk-Medium.otf'),
     'Cabinet Grotesk-Bold': require('../assets/fonts/CabinetGrotesk-Bold.otf'),
+    'Cabinet Grotesk-Extrabold': require('../assets/fonts/CabinetGrotesk-Extrabold.otf'),
   });
 
   useEffect(() => {
