@@ -5,6 +5,8 @@ import { logger, pinoOptions } from './lib/logger';
 import { registerSecurity } from './plugins/security';
 import { prismaPlugin } from './plugins/prisma';
 import { authRoutes } from './routes/auth';
+import { userRoutes } from './routes/users';
+import { dogRoutes } from './routes/dogs';
 import { waitlistRoutes } from './routes/waitlist';
 
 const app = Fastify({
@@ -40,6 +42,8 @@ async function bootstrap(): Promise<void> {
   await app.register(prismaPlugin);
 
   await app.register(authRoutes, { prefix: '/api/auth' });
+  await app.register(userRoutes, { prefix: '/api/users' });
+  await app.register(dogRoutes, { prefix: '/api/dogs' });
   await app.register(waitlistRoutes, { prefix: '/api' });
 
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));

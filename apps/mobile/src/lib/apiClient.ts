@@ -1,4 +1,4 @@
-import type { AuthUser } from '@pawflo/types';
+import type { AuthUser, Dog } from '@pawflo/types';
 import { tokenStorage } from './secureStorage';
 
 // Set EXPO_PUBLIC_API_URL in .env.local to your laptop's LAN IP when testing on device.
@@ -52,7 +52,7 @@ export const api = {
       }),
 
     login: (data: { email: string; password: string }) =>
-      request<{ accessToken: string; refreshToken: string; user: AuthUser }>(
+      request<{ accessToken: string; refreshToken: string; user: AuthUser; hasDog: boolean }>(
         '/api/auth/login',
         { method: 'POST', body: JSON.stringify(data) },
       ),
@@ -68,5 +68,56 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ refreshToken }),
       }),
+  },
+
+  users: {
+    me: () =>
+      request<{ user: AuthUser; hasDog: boolean }>('/api/users/me'),
+  },
+
+  dogs: {
+    list: () =>
+      request<{ dogs: Dog[] }>('/api/dogs'),
+
+    get: (id: string) =>
+      request<{ dog: Dog }>(`/api/dogs/${id}`),
+
+    create: (data: {
+      name: string;
+      breed?: string | null;
+      sex: string;
+      size: string;
+      birthDate?: string | null;
+      bio?: string | null;
+      traits?: string[];
+      activityLevel?: string;
+      weight?: number | null;
+    }) =>
+      request<{ dog: Dog }>('/api/dogs', { method: 'POST', body: JSON.stringify(data) }),
+
+    update: (id: string, data: Partial<{
+      name: string;
+      breed: string | null;
+      sex: string;
+      size: string;
+      birthDate: string | null;
+      bio: string | null;
+      traits: string[];
+      activityLevel: string;
+      weight: number | null;
+    }>) =>
+      request<{ dog: Dog }>(`/api/dogs/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+
+    remove: (id: string) =>
+      request<void>(`/api/dogs/${id}`, { method: 'DELETE' }),
+
+    addPhoto: (dogId: string, url: string, order = 0) =>
+      request<{ photo: { id: string; url: string; order: number } }>(
+        `/api/dogs/${dogId}/photos`,
+        { method: 'POST', body: JSON.stringify({ url, order }) },
+      ),
+
+    removePhoto: (dogId: string, photoId: string) =>
+      request<void>(`/api/dogs/${dogId}/photos/${photoId}`, { method: 'DELETE' }),
   },
 };

@@ -1,32 +1,30 @@
 import { Tabs } from 'expo-router';
-import { Colors, FontSize, Fonts } from '@pawflo/theme';
-import { strings } from '@/i18n/strings.pl';
+import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { SimpleTabBar } from '@/components/ui/Dock';
+
+function TabBar(props: BottomTabBarProps) {
+  // Home tab (index 0) uses PawNavigation on-screen — no tab bar needed
+  if (props.state.index === 0) return null;
+  return <SimpleTabBar {...props} />;
+}
 
 export default function TabsLayout() {
   return (
     <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: Colors.coral,
-        tabBarInactiveTintColor: Colors.textFaint,
-        tabBarStyle: {
-          backgroundColor: Colors.ink,
-          borderTopColor: Colors.warmLine,
-          borderTopWidth: 1,
-          paddingBottom: 4,
-          height: 60,
-        },
-        tabBarLabelStyle: {
-          fontFamily: Fonts.sans,
-          fontSize: FontSize.micro,
-        },
-      }}
+      tabBar={(props) => <TabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tabs.Screen name="index" options={{ title: strings.tabs.home }} />
-      <Tabs.Screen name="machdog" options={{ title: strings.tabs.machdog }} />
-      <Tabs.Screen name="pawpanel" options={{ title: strings.tabs.pawpanel }} />
-      <Tabs.Screen name="pawmap" options={{ title: strings.tabs.pawmap }} />
-      <Tabs.Screen name="profile" options={{ title: strings.tabs.profile }} />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Dom',
+          tabBarStyle: { display: 'none' },  // prevents RN from reserving tab bar height
+        }}
+      />
+      <Tabs.Screen name="pawpanel" options={{ title: 'Zdrowie' }} />
+      <Tabs.Screen name="machdog"  options={{ title: 'MachDog' }} />
+      <Tabs.Screen name="pawmap"   options={{ title: 'Mapa' }} />
+      <Tabs.Screen name="profile"  options={{ title: 'Profil' }} />
     </Tabs>
   );
 }

@@ -106,8 +106,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       data: { userId: user.id, action: 'LOGIN', ipHash: hashIp(req.ip) },
     });
 
+    const dogCount = await app.prisma.dog.count({ where: { ownerId: user.id, deletedAt: null } });
+
     logger.info({ event: 'auth.login', userId: user.id }, 'User logged in');
-    return reply.send({ accessToken, refreshToken: rawRefreshToken, user: { id: user.id, email: user.email, plan: user.plan } });
+    return reply.send({ accessToken, refreshToken: rawRefreshToken, user: { id: user.id, email: user.email, plan: user.plan }, hasDog: dogCount > 0 });
   });
 
   // POST /auth/refresh

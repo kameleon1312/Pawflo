@@ -58,6 +58,8 @@ module.exports = withSentryConfig(nextConfig, {
   silent: !process.env.CI,
   hideSourceMaps: true,
   telemetry: false,
-  disableLogger: true,
-  automaticVercelMonitors: false,
+  webpack: {
+    treeshake: { removeDebugLogging: true },
+    automaticVercelMonitors: false,
+  },
 });

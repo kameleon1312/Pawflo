@@ -1,35 +1,21 @@
 import { useEffect, useRef } from 'react';
-import { Animated, ImageBackground, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Dimensions, ImageBackground, StyleSheet, Text, View } from 'react-native';
+
+const { width: SW, height: SH } = Dimensions.get('screen');
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import type { Href } from 'expo-router';
+import { Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import type { ComponentProps } from 'react';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
-
-type IconName = ComponentProps<typeof Ionicons>['name'];
-
-type Shortcut = { key: string; label: string; icon: IconName; route: string; color: string };
-
-const SHORTCUTS: Shortcut[] = [
-  { key: 'machdog',      label: 'MachDog',       icon: 'heart',                  route: '/(tabs)/machdog',   color: Colors.coral },
-  { key: 'health',       label: 'Zdrowie',        icon: 'fitness-outline',         route: '/(tabs)/pawpanel',  color: Colors.success },
-  { key: 'map',          label: 'Mapa',            icon: 'map-outline',             route: '/(tabs)/pawmap',    color: Colors.info },
-  { key: 'dog',          label: 'Mój pies',        icon: 'paw-outline',             route: '/(tabs)/profile',   color: Colors.coralSoft },
-  { key: 'chat',         label: 'Chat',            icon: 'chatbubbles-outline',     route: '/(tabs)/machdog',   color: Colors.warning },
-  { key: 'notifs',       label: 'Powiadomienia',   icon: 'notifications-outline',   route: '/(tabs)/index',     color: Colors.textFaint },
-];
+import { PawNavigation } from '@/components/home/PawNavigation';
 
 export default function HomeScreen() {
-  const router = useRouter();
-
   const heroOpacity = useRef(new Animated.Value(0)).current;
   const copyOpacity = useRef(new Animated.Value(0)).current;
-  const copyY      = useRef(new Animated.Value(24)).current;
-  const gridOpacity = useRef(new Animated.Value(0)).current;
-  const gridScale  = useRef(new Animated.Value(0.94)).current;
+  const copyY       = useRef(new Animated.Value(24)).current;
+  const pawOpacity  = useRef(new Animated.Value(0)).current;
+  const pawScale    = useRef(new Animated.Value(0.88)).current;
 
   useEffect(() => {
     Animated.sequence([
@@ -39,91 +25,70 @@ export default function HomeScreen() {
         Animated.timing(copyY,       { toValue: 0, duration: 400, useNativeDriver: true }),
       ]),
       Animated.parallel([
-        Animated.timing(gridOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-        Animated.spring(gridScale, { toValue: 1, speed: 16, bounciness: 5, useNativeDriver: true }),
+        Animated.timing(pawOpacity, { toValue: 1, duration: 300, useNativeDriver: true }),
+        Animated.spring(pawScale,   { toValue: 1, speed: 14, bounciness: 7, useNativeDriver: true }),
       ]),
     ]).start();
   }, []);
 
   return (
     <View style={styles.root}>
-      {/* Hero photo */}
-      <Animated.View style={[StyleSheet.absoluteFill, { opacity: heroOpacity }]}>
+      {/* ── Hero photo — uses physical screen dimensions so it isn't clipped by the tab navigator container ── */}
+      <Animated.View style={[styles.heroFill, { opacity: heroOpacity }]}>
         <ImageBackground
           source={require('../../assets/images/hero-dog.jpg')}
-          style={StyleSheet.absoluteFill}
+          style={styles.heroFill}
           resizeMode="cover"
         />
       </Animated.View>
 
-      {/* Top vignette — logo legibility */}
+      {/* Top vignette */}
       <LinearGradient
         colors={[Colors.ink, 'transparent']}
         style={styles.topGradient}
         pointerEvents="none"
       />
 
-      {/* Bottom vignette — content legibility */}
+      {/* Bottom scrim — semi-transparent so hero shows through the paw area */}
       <LinearGradient
-        colors={['transparent', Colors.ink, Colors.ink]}
-        locations={[0, 0.55, 1]}
+        colors={['transparent', 'rgba(27,20,17,0.42)', 'rgba(27,20,17,0.68)']}
+        locations={[0, 0.5, 1]}
         style={styles.bottomGradient}
         pointerEvents="none"
       />
 
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
-        {/* ── Header ── */}
+      {/* ── Header — anchored to top ── */}
+      <SafeAreaView style={styles.headerSafe} edges={['top']} pointerEvents="box-none">
         <View style={styles.header}>
           <View>
             <Text style={styles.logo}>PawFlo</Text>
             <Text style={styles.tagline}>{strings.home.tagline}</Text>
           </View>
-          <Pressable style={styles.bellWrap} hitSlop={12} accessibilityRole="button" accessibilityLabel="Powiadomienia">
+          <Pressable
+            style={styles.bellWrap}
+            hitSlop={12}
+            accessibilityRole="button"
+            accessibilityLabel="Powiadomienia"
+          >
             <Ionicons name="notifications-outline" size={24} color={Colors.cream} />
             <View style={styles.bellDot} />
           </Pressable>
         </View>
+      </SafeAreaView>
 
-        {/* Spacer — lets the dog photo breathe */}
-        <View style={{ flex: 1 }} />
+      {/* ── Copy — floating at ~30% from top ── */}
+      <Animated.View
+        style={[styles.copyWrap, { opacity: copyOpacity, transform: [{ translateY: copyY }] }]}
+        pointerEvents="none"
+      >
+        <Text style={styles.h1}>{strings.home.hero}</Text>
+        <Text style={styles.sub}>{strings.home.heroSub}</Text>
+      </Animated.View>
 
-        {/* ── Copy + CTA ── */}
-        <Animated.View style={[styles.copyWrap, { opacity: copyOpacity, transform: [{ translateY: copyY }] }]}>
-          <Text style={styles.h1}>{strings.home.hero}</Text>
-          <Text style={styles.sub}>{strings.home.heroSub}</Text>
-          <Pressable
-            onPress={() => router.push('/(tabs)/machdog' as Href)}
-            style={({ pressed }) => [styles.cta, pressed && { opacity: 0.85 }]}
-            accessibilityRole="button"
-            accessibilityLabel={strings.home.cta}
-          >
-            <LinearGradient
-              colors={[Colors.coral, Colors.coralDeep]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.ctaInner}
-            >
-              <Text style={styles.ctaText}>{strings.home.cta}</Text>
-            </LinearGradient>
-          </Pressable>
-        </Animated.View>
-
-        {/* ── Shortcut grid ── */}
-        <Animated.View style={[styles.grid, { opacity: gridOpacity, transform: [{ scale: gridScale }] }]}>
-          {SHORTCUTS.map((item) => (
-            <Pressable
-              key={item.key}
-              style={({ pressed }) => [styles.shortcut, pressed && { opacity: 0.65 }]}
-              onPress={() => router.push(item.route as Href)}
-              accessibilityRole="button"
-              accessibilityLabel={item.label}
-            >
-              <View style={[styles.shortcutIcon, { backgroundColor: `${item.color}22` }]}>
-                <Ionicons name={item.icon} size={22} color={item.color} />
-              </View>
-              <Text style={styles.shortcutLabel}>{item.label}</Text>
-            </Pressable>
-          ))}
+      {/* ── Paw navigation — anchored to bottom ── */}
+      <SafeAreaView style={styles.pawSafe} edges={['bottom']} pointerEvents="box-none">
+        <Animated.View style={{ opacity: pawOpacity, transform: [{ scale: pawScale }] }}>
+          <PawNavigation />
         </Animated.View>
       </SafeAreaView>
     </View>
@@ -131,28 +96,42 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  root:     { flex: 1, backgroundColor: Colors.ink },
-  safeArea: { flex: 1 },
+  root: { flex: 1, backgroundColor: Colors.ink },
+
+  heroFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: SW,
+    height: SH,
+  },
 
   topGradient: {
     ...StyleSheet.absoluteFillObject,
-    bottom: '62%',
+    bottom: '55%',
   },
   bottomGradient: {
     ...StyleSheet.absoluteFillObject,
-    top: '32%',
+    top: '52%',
   },
 
-  // Header
+  // Header fixed at the top of the screen
+  headerSafe: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
     paddingHorizontal: 24,
     paddingTop: 8,
+    paddingBottom: 4,
   },
   logo: {
-    fontFamily: Fonts.serif,   // 'Fraunces'
+    fontFamily: Fonts.serif,
     fontSize: 28,
     color: Colors.cream,
     letterSpacing: -0.4,
@@ -165,10 +144,7 @@ const styles = StyleSheet.create({
     marginTop: 3,
     textTransform: 'uppercase',
   },
-  bellWrap: {
-    marginTop: 4,
-    padding: 4,
-  },
+  bellWrap: { marginTop: 4, padding: 4 },
   bellDot: {
     position: 'absolute',
     top: 4,
@@ -181,10 +157,21 @@ const styles = StyleSheet.create({
     borderColor: Colors.ink,
   },
 
-  // Copy
+  // Copy floats at ~22% from top
   copyWrap: {
+    position: 'absolute',
+    top: '22%',
+    left: 0,
+    right: 0,
     paddingHorizontal: 24,
-    paddingBottom: 20,
+  },
+
+  // Paw anchored to the bottom-right corner, pushed slightly below visible area
+  pawSafe: {
+    position: 'absolute',
+    bottom: -28,
+    left: 0,
+    right: 0,
   },
   h1: {
     fontFamily: 'Fraunces-Bold',
@@ -192,60 +179,12 @@ const styles = StyleSheet.create({
     color: Colors.cream,
     lineHeight: FontSize.h1 * 1.18,
     letterSpacing: -0.4,
-    marginBottom: 10,
+    marginBottom: 6,
   },
   sub: {
     fontFamily: Fonts.sans,
     fontSize: FontSize.bodySm,
     color: Colors.bone,
     lineHeight: FontSize.bodySm * 1.6,
-    marginBottom: 20,
-  },
-  cta: {
-    borderRadius: 100,
-    overflow: 'hidden',
-    alignSelf: 'flex-start',
-  },
-  ctaInner: {
-    paddingVertical: 14,
-    paddingHorizontal: 28,
-    alignItems: 'center',
-    minWidth: 192,
-  },
-  ctaText: {
-    fontFamily: 'Cabinet Grotesk-Bold',
-    fontSize: FontSize.cta,
-    color: Colors.cream,
-    letterSpacing: 0.2,
-  },
-
-  // Grid
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    paddingHorizontal: 16,
-    paddingBottom: 8,
-    gap: 4,
-  },
-  shortcut: {
-    width: '33.33%',
-    alignItems: 'center',
-    paddingVertical: 10,
-    minHeight: 76,
-    justifyContent: 'center',
-  },
-  shortcutIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 6,
-  },
-  shortcutLabel: {
-    fontFamily: Fonts.sans,
-    fontSize: FontSize.micro,
-    color: Colors.bone,
-    textAlign: 'center',
   },
 });

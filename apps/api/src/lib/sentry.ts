@@ -1,5 +1,6 @@
 import { config } from 'dotenv';
-config({ path: '.env.local' }); // load before anything else touches process.env
+config({ path: '.env' });                    // base secrets (JWT, keys)
+config({ path: '.env.local', override: true }); // local overrides (Supabase, Sentry, Resend)
 
 import * as Sentry from '@sentry/node';
 

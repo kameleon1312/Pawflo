@@ -40,7 +40,7 @@ export function HeroSection() {
         <FadeIn delay={0.15}>
           <h1 className="font-serif font-bold text-cream text-5xl md:text-7xl lg:text-8xl
                          max-w-3xl text-balance mb-8 leading-tight">
-            Znajdź soulmate'a dla&nbsp;swojego&nbsp;psa
+            Znajdź kompana dla&nbsp;swojego&nbsp;psa
           </h1>
         </FadeIn>
 

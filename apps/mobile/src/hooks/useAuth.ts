@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
+import type { Href } from 'expo-router';
 import { api } from '@/lib/apiClient';
 import { tokenStorage } from '@/lib/secureStorage';
 import { useAuthStore } from '@/stores/authStore';
@@ -10,10 +11,10 @@ export function useLogin() {
 
   return useMutation({
     mutationFn: api.auth.login,
-    onSuccess: async ({ accessToken, refreshToken, user }) => {
+    onSuccess: async ({ accessToken, refreshToken, user, hasDog }) => {
       await tokenStorage.setTokens(accessToken, refreshToken);
-      setUser(user);
-      router.replace('/(tabs)');
+      setUser(user, hasDog);
+      router.replace((hasDog ? '/(tabs)' : '/(onboarding)/step-1-dog') as Href);
     },
   });
 }
