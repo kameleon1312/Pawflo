@@ -1,8 +1,8 @@
 import { z } from 'zod';
 
 const ALLOWED_TRAITS = [
-  'energetic', 'calm', 'friendly', 'shy', 'playful',
-  'protective', 'affectionate', 'independent', 'social', 'trainable',
+  'PLAYFUL', 'CALM', 'FRIENDLY', 'PROTECTIVE', 'ENERGETIC',
+  'LAZY', 'CURIOUS', 'GENTLE', 'SHY', 'AFFECTIONATE', 'INDEPENDENT', 'SOCIAL', 'TRAINABLE',
 ] as const;
 
 export const CreateDogSchema = z.object({

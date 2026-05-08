@@ -24,6 +24,7 @@ export const FontSize = {
 
   // Special
   cta: 14,
+  label: 13,
 } as const;
 
 export const FontWeight = {

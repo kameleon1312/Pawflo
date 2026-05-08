@@ -50,7 +50,7 @@ export default function Step3TraitsScreen() {
 
     setStep3({ activityLevel, traits });
 
-    const birthDate = dog.birthYear ? `${dog.birthYear}-01-01` : null;
+    const birthDate = dog.birthYear ? `${dog.birthYear}-01-01T00:00:00.000Z` : null;
 
     await createDog.mutateAsync({
       name:          dog.name,

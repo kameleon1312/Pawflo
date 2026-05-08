@@ -1,6 +1,6 @@
 import { Tabs } from 'expo-router';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { SimpleTabBar } from '@/components/ui/Dock';
+import type { BottomTabBarProps } from '@/components/ui/Dock';
 
 function TabBar(props: BottomTabBarProps) {
   // Home tab (index 0) uses PawNavigation on-screen — no tab bar needed
