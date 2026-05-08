@@ -1,3 +1,6 @@
+import { config } from 'dotenv';
+config({ path: '.env.local' }); // load before anything else touches process.env
+
 import * as Sentry from '@sentry/node';
 
 // Must be called before any other imports that should be instrumented.

@@ -28,6 +28,8 @@ const securityHeaders = [
 const nextConfig = {
   experimental: {
     optimizePackageImports: ['@pawflo/theme', '@pawflo/validation'],
+    // Required for instrumentation.ts to run in Next.js < 14.6
+    instrumentationHook: true,
   },
   async headers() {
     return [
@@ -50,17 +52,12 @@ const nextConfig = {
 };
 
 module.exports = withSentryConfig(nextConfig, {
-  // Sentry build-time options
-  org: 'pawflo',
-  project: 'javascript-nextjs',
-  // Upload source maps only in CI/production (keep local builds fast)
+  // org + project needed only for source map uploads — fill in when SENTRY_AUTH_TOKEN is ready
+  // org: process.env.SENTRY_ORG,
+  // project: process.env.SENTRY_PROJECT,
   silent: !process.env.CI,
-  // Hide source maps from the public bundle
   hideSourceMaps: true,
-  // Disable Sentry telemetry
   telemetry: false,
-  // Reduce bundle size by removing Sentry logger
   disableLogger: true,
-  // Automatically tree-shake Sentry SDK
   automaticVercelMonitors: false,
 });
