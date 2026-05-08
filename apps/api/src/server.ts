@@ -9,6 +9,8 @@ import { userRoutes } from './routes/users';
 import { dogRoutes } from './routes/dogs';
 import { swipeRoutes } from './routes/swipes';
 import { matchRoutes } from './routes/matches';
+import { healthRoutes } from './routes/health';
+import { chatRoutes } from './routes/chat';
 import { waitlistRoutes } from './routes/waitlist';
 
 const app = Fastify({
@@ -48,6 +50,8 @@ async function bootstrap(): Promise<void> {
   await app.register(dogRoutes, { prefix: '/api/dogs' });
   await app.register(swipeRoutes, { prefix: '/api/swipes' });
   await app.register(matchRoutes, { prefix: '/api/matches' });
+  await app.register(healthRoutes, { prefix: '/api/health' });
+  await app.register(chatRoutes,   { prefix: '/api/matches' });
   await app.register(waitlistRoutes, { prefix: '/api' });
 
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));

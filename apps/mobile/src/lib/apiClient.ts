@@ -1,4 +1,14 @@
-import type { AuthUser, CandidateDog, Dog, MatchSummary } from '@pawflo/types';
+import type {
+  Allergy,
+  AuthUser,
+  CandidateDog,
+  Dog,
+  MatchSummary,
+  Medication,
+  Vaccination,
+  VetVisit,
+  WeightEntry,
+} from '@pawflo/types';
 import { tokenStorage } from './secureStorage';
 
 // Set EXPO_PUBLIC_API_URL in .env.local to your laptop's LAN IP when testing on device.
@@ -141,5 +151,73 @@ export const api = {
   matches: {
     list: () =>
       request<{ matches: MatchSummary[] }>('/api/matches'),
+  },
+
+  chat: {
+    messages: (matchId: string) =>
+      request<{ messages: import('@pawflo/types').Message[] }>(
+        `/api/matches/${matchId}/messages`,
+      ),
+
+    send: (matchId: string, text: string) =>
+      request<{ message: import('@pawflo/types').Message }>(
+        `/api/matches/${matchId}/messages`,
+        { method: 'POST', body: JSON.stringify({ text }) },
+      ),
+  },
+
+  health: {
+    // Vaccinations
+    vaccinations: () =>
+      request<{ vaccinations: Vaccination[] }>('/api/health/vaccinations'),
+    addVaccination: (data: { name: string; date: string; validUntil?: string | null; vetId?: string | null }) =>
+      request<{ vaccination: Vaccination }>('/api/health/vaccinations', {
+        method: 'POST', body: JSON.stringify(data),
+      }),
+    deleteVaccination: (id: string) =>
+      request<void>(`/api/health/vaccinations/${id}`, { method: 'DELETE' }),
+
+    // Vet visits
+    visits: () =>
+      request<{ visits: VetVisit[] }>('/api/health/visits'),
+    addVisit: (data: { date: string; notes?: string | null; vetId?: string | null }) =>
+      request<{ visit: VetVisit }>('/api/health/visits', {
+        method: 'POST', body: JSON.stringify(data),
+      }),
+    deleteVisit: (id: string) =>
+      request<void>(`/api/health/visits/${id}`, { method: 'DELETE' }),
+
+    // Weight
+    weight: () =>
+      request<{ entries: WeightEntry[] }>('/api/health/weight'),
+    addWeight: (data: { weightKg: number; date: string }) =>
+      request<{ entry: WeightEntry }>('/api/health/weight', {
+        method: 'POST', body: JSON.stringify(data),
+      }),
+    deleteWeight: (id: string) =>
+      request<void>(`/api/health/weight/${id}`, { method: 'DELETE' }),
+
+    // Medications
+    medications: () =>
+      request<{ medications: Medication[] }>('/api/health/medications'),
+    addMedication: (data: {
+      name: string; startDate: string; endDate?: string | null;
+      dosage: string; frequency: string;
+    }) =>
+      request<{ medication: Medication }>('/api/health/medications', {
+        method: 'POST', body: JSON.stringify(data),
+      }),
+    deleteMedication: (id: string) =>
+      request<void>(`/api/health/medications/${id}`, { method: 'DELETE' }),
+
+    // Allergies
+    allergies: () =>
+      request<{ allergies: Allergy[] }>('/api/health/allergies'),
+    addAllergy: (data: { name: string; severity: string; notes?: string | null }) =>
+      request<{ allergy: Allergy }>('/api/health/allergies', {
+        method: 'POST', body: JSON.stringify(data),
+      }),
+    deleteAllergy: (id: string) =>
+      request<void>(`/api/health/allergies/${id}`, { method: 'DELETE' }),
   },
 };

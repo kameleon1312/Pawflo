@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
 import { useCandidates, useMatches, useSwipe } from '@/hooks/useMachDog';
@@ -20,7 +21,8 @@ import type { MatchSummary } from '@pawflo/types';
 const s = strings.machdog;
 
 export default function MachdogScreen() {
-  const insets = useSafeAreaInsets();
+  const router    = useRouter();
+  const insets    = useSafeAreaInsets();
   const candidates = useCandidates();
   const matches    = useMatches();
   const swipe      = useSwipe();
@@ -30,6 +32,10 @@ export default function MachdogScreen() {
 
   const deck = candidates.data ?? [];
   const current = deck[cardIndex] ?? null;
+
+  // isFetching covers both initial load and subsequent refetch() calls
+  const isLoading  = candidates.isLoading || candidates.isFetching;
+  const isDepleted = !isLoading && cardIndex >= deck.length;
 
   async function handleSwipe(direction: 'LIKE' | 'PASS') {
     if (!current) return;
@@ -52,9 +58,6 @@ export default function MachdogScreen() {
     setCardIndex(0);
     candidates.refetch();
   }
-
-  const isLoading  = candidates.isLoading;
-  const isDepleted = !isLoading && cardIndex >= deck.length;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -100,7 +103,12 @@ export default function MachdogScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.matchesList}
-              renderItem={({ item }) => <MatchAvatar match={item} />}
+              renderItem={({ item }) => (
+                <MatchAvatar
+                  match={item}
+                  onPress={() => router.push({ pathname: '/chat/[matchId]', params: { matchId: item.id, dogName: item.otherDog?.name ?? '' } })}
+                />
+              )}
             />
           </View>
         )}
@@ -137,10 +145,10 @@ export default function MachdogScreen() {
   );
 }
 
-function MatchAvatar({ match }: { match: MatchSummary }) {
+function MatchAvatar({ match, onPress }: { match: MatchSummary; onPress: () => void }) {
   const photo = match.otherDog?.photos[0];
   return (
-    <View style={styles.avatarWrap}>
+    <Pressable style={styles.avatarWrap} onPress={onPress} hitSlop={8}>
       {photo ? (
         <Image source={{ uri: photo.url }} style={styles.avatarImg} />
       ) : (
@@ -151,7 +159,7 @@ function MatchAvatar({ match }: { match: MatchSummary }) {
       <Text style={styles.avatarName} numberOfLines={1}>
         {match.otherDog?.name ?? '—'}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 

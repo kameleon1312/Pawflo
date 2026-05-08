@@ -28,6 +28,9 @@
     "socket.io": "^4.7.5",
     "zod": "^3.23.0"
   },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "devDependencies": {
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.0.0",
