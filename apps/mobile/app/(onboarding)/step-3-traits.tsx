@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
@@ -29,9 +29,10 @@ const ACTIVITY_OPTIONS: ActivityPill[] = [
 
 export default function Step3TraitsScreen() {
   const router = useRouter();
-  const dog = useOnboardingStore((st) => st.dog);
+  const insets = useSafeAreaInsets();
+  const dog     = useOnboardingStore((st) => st.dog);
   const setStep3 = useOnboardingStore((st) => st.setStep3);
-  const reset = useOnboardingStore((st) => st.reset);
+  const reset    = useOnboardingStore((st) => st.reset);
 
   const [traits,        setTraits]        = useState<TraitKey[]>([]);
   const [activityLevel, setActivityLevel] = useState<ActivityLevel | null>(null);
@@ -48,40 +49,40 @@ export default function Step3TraitsScreen() {
   async function handleFinish() {
     if (!canSubmit) return;
 
-    setStep3({ activityLevel, traits });
+    setStep3({ activityLevel: activityLevel!, traits });
 
     const birthDate = dog.birthYear ? `${dog.birthYear}-01-01T00:00:00.000Z` : null;
 
-    await createDog.mutateAsync({
-      name:          dog.name,
-      breed:         dog.breed || null,
-      sex:           dog.sex!,
-      size:          dog.size!,
-      birthDate,
-      activityLevel,
-      traits,
-    });
-
-    reset();
-    // authStore.hasDog is set to true inside useCreateDog → auth guard redirects to /(tabs)
-    router.replace('/(tabs)');
+    try {
+      await createDog.mutateAsync({
+        name:          dog.name,
+        breed:         dog.breed || null,
+        sex:           dog.sex!,
+        size:          dog.size!,
+        birthDate,
+        activityLevel: activityLevel!,
+        traits,
+      });
+      reset();
+      router.replace('/(tabs)' as Parameters<typeof router.replace>[0]);
+    } catch {
+      // createDog.isError becomes true → error shown below CTA
+    }
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         style={styles.flex}
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.step}>3 / 3</Text>
           <Text style={styles.title}>{s.title}</Text>
           <Text style={styles.subtitle}>{s.subtitle}</Text>
         </View>
 
-        {/* Traits */}
         <Text style={styles.label}>{s.traitsLabel}</Text>
         <View style={styles.pillGrid}>
           {ALL_TRAITS.map((t) => {
@@ -102,7 +103,6 @@ export default function Step3TraitsScreen() {
           })}
         </View>
 
-        {/* Activity level */}
         <Text style={[styles.label, { marginTop: 28 }]}>{s.activityLabel}</Text>
         <View style={styles.pillRow}>
           {ACTIVITY_OPTIONS.map((opt) => {
@@ -123,14 +123,17 @@ export default function Step3TraitsScreen() {
           })}
         </View>
 
-        {/* Error */}
         {createDog.isError && (
-          <Text style={styles.error}>{strings.errors.generic}</Text>
+          <Text style={styles.error}>
+            {createDog.error instanceof Error
+              ? createDog.error.message
+              : strings.errors.generic}
+          </Text>
         )}
       </ScrollView>
 
-      {/* CTA */}
-      <View style={styles.footer}>
+      {/* Footer sits outside ScrollView — bottom inset added manually */}
+      <View style={[styles.footer, { paddingBottom: insets.bottom + 8 }]}>
         <Pressable
           style={[styles.cta, !canSubmit && styles.ctaDisabled]}
           onPress={handleFinish}
@@ -151,9 +154,9 @@ export default function Step3TraitsScreen() {
 const styles = StyleSheet.create({
   safe:   { flex: 1, backgroundColor: Colors.ink },
   flex:   { flex: 1 },
-  scroll: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 },
+  scroll: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 16 },
 
-  header: { marginBottom: 32 },
+  header: { marginBottom: 28 },
   step: {
     fontFamily: Fonts.sans,
     fontSize: FontSize.micro,
@@ -208,7 +211,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  footer: { paddingHorizontal: 24, paddingBottom: 8, paddingTop: 12 },
+  footer: { paddingHorizontal: 24, paddingTop: 12, backgroundColor: Colors.ink },
   cta: {
     backgroundColor: Colors.coral,
     borderRadius: 14,

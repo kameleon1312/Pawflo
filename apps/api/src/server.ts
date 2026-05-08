@@ -7,6 +7,8 @@ import { prismaPlugin } from './plugins/prisma';
 import { authRoutes } from './routes/auth';
 import { userRoutes } from './routes/users';
 import { dogRoutes } from './routes/dogs';
+import { swipeRoutes } from './routes/swipes';
+import { matchRoutes } from './routes/matches';
 import { waitlistRoutes } from './routes/waitlist';
 
 const app = Fastify({
@@ -44,6 +46,8 @@ async function bootstrap(): Promise<void> {
   await app.register(authRoutes, { prefix: '/api/auth' });
   await app.register(userRoutes, { prefix: '/api/users' });
   await app.register(dogRoutes, { prefix: '/api/dogs' });
+  await app.register(swipeRoutes, { prefix: '/api/swipes' });
+  await app.register(matchRoutes, { prefix: '/api/matches' });
   await app.register(waitlistRoutes, { prefix: '/api' });
 
   app.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }));

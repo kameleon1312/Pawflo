@@ -1,4 +1,4 @@
-import type { AuthUser, Dog } from '@pawflo/types';
+import type { AuthUser, CandidateDog, Dog, MatchSummary } from '@pawflo/types';
 import { tokenStorage } from './secureStorage';
 
 // Set EXPO_PUBLIC_API_URL in .env.local to your laptop's LAN IP when testing on device.
@@ -73,6 +73,12 @@ export const api = {
   users: {
     me: () =>
       request<{ user: AuthUser; hasDog: boolean }>('/api/users/me'),
+
+    update: (data: { firstName?: string; lastName?: string }) =>
+      request<{ user: AuthUser }>('/api/users/me', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
   },
 
   dogs: {
@@ -119,5 +125,21 @@ export const api = {
 
     removePhoto: (dogId: string, photoId: string) =>
       request<void>(`/api/dogs/${dogId}/photos/${photoId}`, { method: 'DELETE' }),
+  },
+
+  swipes: {
+    candidates: () =>
+      request<{ candidates: CandidateDog[] }>('/api/swipes/candidates'),
+
+    create: (swipeeId: string, direction: 'LIKE' | 'PASS') =>
+      request<{ matched: boolean; matchId?: string }>('/api/swipes', {
+        method: 'POST',
+        body: JSON.stringify({ swipeeId, direction }),
+      }),
+  },
+
+  matches: {
+    list: () =>
+      request<{ matches: MatchSummary[] }>('/api/matches'),
   },
 };

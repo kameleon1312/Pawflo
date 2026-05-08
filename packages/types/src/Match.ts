@@ -20,3 +20,12 @@ export interface Match {
   lastMessageAt: string | null;
   unreadCount: number;
 }
+
+// Returned by GET /api/matches
+export interface MatchSummary {
+  id: string;
+  status: MatchStatus;
+  createdAt: string;
+  lastMessageAt: string | null;
+  otherDog: DogSummary | null;
+}

@@ -30,3 +30,18 @@ export type DogSummary = Pick<
   Dog,
   'id' | 'name' | 'breed' | 'sex' | 'size' | 'activityLevel' | 'photos'
 >;
+
+// Full dog card returned by GET /api/swipes/candidates
+export interface CandidateDog {
+  id: string;
+  name: string;
+  breed: string | null;
+  birthDate: string | null;
+  sex: DogSex;
+  size: DogSize;
+  activityLevel: ActivityLevel;
+  traits: string[];
+  bio: string | null;
+  photos: Photo[];
+  owner: { locationCity: string | null };
+}

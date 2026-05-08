@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,29 +12,27 @@ const s = strings.onboarding.step2;
 // This screen serves as a placeholder that lets users skip and complete onboarding.
 export default function Step2PhotosScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
 
   function handleNext() {
     router.push('/(onboarding)/step-3-traits' as Href);
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.root}>
-        {/* Header */}
         <View style={styles.header}>
           <Text style={styles.step}>2 / 3</Text>
           <Text style={styles.title}>{s.title}</Text>
           <Text style={styles.subtitle}>{s.subtitle}</Text>
         </View>
 
-        {/* Placeholder */}
         <View style={styles.placeholder}>
           <Ionicons name="camera-outline" size={56} color={Colors.inkSoft} />
           <Text style={styles.placeholderText}>{s.comingSoon}</Text>
         </View>
 
-        {/* Footer */}
-        <View style={styles.footer}>
+        <View style={[styles.footer, { paddingBottom: insets.bottom + 8 }]}>
           <Pressable
             style={styles.cta}
             onPress={handleNext}
@@ -49,8 +47,8 @@ export default function Step2PhotosScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.ink },
-  root: { flex: 1, paddingHorizontal: 24 },
+  safe:  { flex: 1, backgroundColor: Colors.ink },
+  root:  { flex: 1, paddingHorizontal: 24 },
 
   header: { paddingTop: 16, marginBottom: 40 },
   step: {
@@ -91,7 +89,7 @@ const styles = StyleSheet.create({
     lineHeight: FontSize.bodySm * 1.6,
   },
 
-  footer: { paddingBottom: 8, paddingTop: 12 },
+  footer: { paddingTop: 12, backgroundColor: Colors.ink },
   cta: {
     backgroundColor: Colors.coral,
     borderRadius: 14,

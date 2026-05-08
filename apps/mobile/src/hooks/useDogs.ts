@@ -2,6 +2,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/apiClient';
 import { useAuthStore } from '@/stores/authStore';
 
+export function useUpdateProfile() {
+  const setUser = useAuthStore((s) => s.setUser);
+  const hasDog  = useAuthStore((s) => s.hasDog);
+
+  return useMutation({
+    mutationFn: api.users.update,
+    onSuccess: ({ user }) => setUser(user, hasDog),
+  });
+}
+
 const DOGS_KEY = ['dogs'] as const;
 
 export function useDogs() {

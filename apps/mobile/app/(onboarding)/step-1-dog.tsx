@@ -9,7 +9,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
@@ -37,6 +37,7 @@ const YEAR_OPTIONS = Array.from({ length: 20 }, (_, i) => CURRENT_YEAR - i);
 
 export default function Step1DogScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const setStep1 = useOnboardingStore((s) => s.setStep1);
 
   const [name,      setName]      = useState('');
@@ -54,7 +55,8 @@ export default function Step1DogScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    // Only top edge — bottom is handled manually in footer to avoid KAV conflict
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -65,36 +67,32 @@ export default function Step1DogScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
           <View style={styles.header}>
             <Text style={styles.step}>1 / 3</Text>
             <Text style={styles.title}>{s.title}</Text>
             <Text style={styles.subtitle}>{s.subtitle}</Text>
           </View>
 
-          {/* Name */}
           <TextInput
             style={styles.input}
             placeholder={s.namePlaceholder}
-            placeholderTextColor={Colors.inkSoft}
+            placeholderTextColor={Colors.textFaint}
             value={name}
             onChangeText={setName}
             autoCapitalize="words"
             returnKeyType="next"
           />
 
-          {/* Breed */}
           <TextInput
             style={styles.input}
             placeholder={s.breedPlaceholder}
-            placeholderTextColor={Colors.inkSoft}
+            placeholderTextColor={Colors.textFaint}
             value={breed}
             onChangeText={setBreed}
             autoCapitalize="words"
             returnKeyType="done"
           />
 
-          {/* Sex */}
           <Text style={styles.label}>{s.sexLabel}</Text>
           <View style={styles.pillRow}>
             {SEX_OPTIONS.map((opt) => (
@@ -112,7 +110,6 @@ export default function Step1DogScreen() {
             ))}
           </View>
 
-          {/* Size */}
           <Text style={styles.label}>{s.sizeLabel}</Text>
           <View style={styles.pillRow}>
             {SIZE_OPTIONS.map((opt) => (
@@ -130,7 +127,6 @@ export default function Step1DogScreen() {
             ))}
           </View>
 
-          {/* Birth year */}
           <Text style={styles.label}>{s.birthYearLabel}</Text>
           <ScrollView
             horizontal
@@ -153,8 +149,8 @@ export default function Step1DogScreen() {
           </ScrollView>
         </ScrollView>
 
-        {/* CTA */}
-        <View style={styles.footer}>
+        {/* Footer sits below KAV — bottom inset added manually */}
+        <View style={[styles.footer, { paddingBottom: insets.bottom + 8 }]}>
           <Pressable
             style={[styles.cta, !canProceed && styles.ctaDisabled]}
             onPress={handleNext}
@@ -172,9 +168,9 @@ export default function Step1DogScreen() {
 const styles = StyleSheet.create({
   safe:  { flex: 1, backgroundColor: Colors.ink },
   flex:  { flex: 1 },
-  scroll: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 32 },
+  scroll: { paddingHorizontal: 24, paddingTop: 16, paddingBottom: 16 },
 
-  header: { marginBottom: 32 },
+  header: { marginBottom: 28 },
   step: {
     fontFamily: Fonts.sans,
     fontSize: FontSize.micro,
@@ -230,18 +226,11 @@ const styles = StyleSheet.create({
     minHeight: 44,
     justifyContent: 'center',
   },
-  pillActive: {
-    borderColor: Colors.coral,
-    backgroundColor: 'rgba(240,138,138,0.12)',
-  },
-  pillText: {
-    fontFamily: Fonts.sans,
-    fontSize: FontSize.bodySm,
-    color: Colors.bone,
-  },
+  pillActive:     { borderColor: Colors.coral, backgroundColor: 'rgba(240,138,138,0.12)' },
+  pillText:       { fontFamily: Fonts.sans, fontSize: FontSize.bodySm, color: Colors.bone },
   pillTextActive: { color: Colors.coral },
 
-  footer: { paddingHorizontal: 24, paddingBottom: 8, paddingTop: 12 },
+  footer: { paddingHorizontal: 24, paddingTop: 12, backgroundColor: Colors.ink },
   cta: {
     backgroundColor: Colors.coral,
     borderRadius: 14,

@@ -28,6 +28,16 @@ export const strings = {
     cta: 'Zacznij dopasowanie',
     tagline: 'MIŁOŚĆ NA CZTERECH ŁAPACH',
   },
+  machdog: {
+    title: 'MachDog',
+    noMoreCandidates: 'To wszyscy na razie!\nWróć jutro po nowe psy.',
+    noMoreCta: 'Odśwież',
+    matchTitle: 'To dopasowanie!',
+    matchSubtitle: 'Wasze psy się polubili — czas się przywitać!',
+    matchContinue: 'Super!',
+    matchesSection: 'Twoje dopasowania',
+    noMatchesYet: 'Jeszcze brak dopasowań.\nSwipe\'uj, żeby znaleźć przyjaciela!',
+  },
   errors: {
     generic: 'Coś poszło nie tak. Spróbuj ponownie.',
     network: 'Brak połączenia z internetem.',
