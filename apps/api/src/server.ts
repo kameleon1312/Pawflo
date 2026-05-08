@@ -1,4 +1,6 @@
+import './lib/sentry'; // must be first — instruments Node.js before other modules load
 import Fastify from 'fastify';
+import * as Sentry from '@sentry/node';
 import { logger, pinoOptions } from './lib/logger';
 import { registerSecurity } from './plugins/security';
 import { prismaPlugin } from './plugins/prisma';
@@ -18,6 +20,10 @@ app.setErrorHandler((error, req, reply) => {
 
   const statusCode = error.statusCode ?? 500;
   const isServerError = statusCode >= 500;
+
+  if (isServerError) {
+    Sentry.captureException(error, { extra: { url: req.url, method: req.method } });
+  }
 
   if (process.env['NODE_ENV'] === 'production' && isServerError) {
     return reply.status(statusCode).send({ error: 'Błąd serwera. Spróbuj ponownie później.' });
