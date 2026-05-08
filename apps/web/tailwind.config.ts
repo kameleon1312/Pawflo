@@ -19,6 +19,7 @@ const config: Config = {
       backgroundImage: {
         'coral-gradient': 'linear-gradient(135deg, #F08A8A 0%, #D85F5F 100%)',
         'ink-gradient': 'linear-gradient(180deg, #1B1411 0%, #2A1F19 100%)',
+        'hero-glow': 'radial-gradient(ellipse at 60% 50%, #F08A8A 0%, transparent 70%)',
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out forwards',

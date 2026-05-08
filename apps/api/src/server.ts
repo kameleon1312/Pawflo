@@ -11,6 +11,24 @@ const app = Fastify({
   trustProxy: true,      // correct client IP behind reverse proxy / load balancer
 });
 
+// Prevent internal error details from leaking to clients in production.
+// Fastify's default handler exposes error.message which can include Prisma schema details.
+app.setErrorHandler((error, req, reply) => {
+  req.log.error({ err: error, url: req.url, method: req.method }, 'Unhandled error');
+
+  const statusCode = error.statusCode ?? 500;
+  const isServerError = statusCode >= 500;
+
+  if (process.env['NODE_ENV'] === 'production' && isServerError) {
+    return reply.status(statusCode).send({ error: 'Błąd serwera. Spróbuj ponownie później.' });
+  }
+
+  return reply.status(statusCode).send({
+    error: error.message,
+    ...(error.validation && { details: error.validation }),
+  });
+});
+
 async function bootstrap(): Promise<void> {
   await registerSecurity(app);
   await app.register(prismaPlugin);

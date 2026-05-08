@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { Fraunces } from 'next/font/google';
+import { Colors } from '@pawflo/theme';
 import './globals.css';
 
 const fraunces = Fraunces({
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#F08A8A',
+  themeColor: Colors.coral,
   width: 'device-width',
   initialScale: 1,
 };

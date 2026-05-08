@@ -5,11 +5,7 @@ export function HeroSection() {
   return (
     <section className="relative bg-ink min-h-[90vh] flex items-center overflow-hidden">
       {/* Background gradient */}
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{ background: 'radial-gradient(ellipse at 60% 50%, #F08A8A 0%, transparent 70%)' }}
-        aria-hidden="true"
-      />
+      <div className="absolute inset-0 opacity-20 bg-hero-glow" aria-hidden="true" />
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
         <FadeIn delay={0.05}>
