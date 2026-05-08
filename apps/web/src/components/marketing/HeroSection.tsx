@@ -1,11 +1,34 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { FadeIn } from '@/components/ui/FadeIn';
 
 export function HeroSection() {
   return (
     <section className="relative bg-ink min-h-[90vh] flex items-center overflow-hidden">
-      {/* Background gradient */}
-      <div className="absolute inset-0 opacity-20 bg-hero-glow" aria-hidden="true" />
+      {/* Hero photo */}
+      <Image
+        src="/hero-dog.jpg"
+        alt=""
+        fill
+        priority
+        quality={85}
+        style={{ objectFit: 'cover', objectPosition: 'center 30%' }}
+        className="opacity-50"
+        aria-hidden="true"
+      />
+
+      {/* Dark gradient overlay — top + bottom for text legibility */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(to bottom, rgba(27,20,17,0.75) 0%, rgba(27,20,17,0.3) 40%, rgba(27,20,17,0.85) 100%)',
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Coral glow accent */}
+      <div className="absolute inset-0 opacity-15 bg-hero-glow" aria-hidden="true" />
 
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
         <FadeIn delay={0.05}>
@@ -15,8 +38,8 @@ export function HeroSection() {
         </FadeIn>
 
         <FadeIn delay={0.15}>
-          <h1 className="font-serif font-bold text-cream font-display text-5xl md:text-7xl lg:text-8xl
-                         max-w-3xl text-balance mb-8">
+          <h1 className="font-serif font-bold text-cream text-5xl md:text-7xl lg:text-8xl
+                         max-w-3xl text-balance mb-8 leading-tight">
             Znajdź soulmate'a dla&nbsp;swojego&nbsp;psa
           </h1>
         </FadeIn>
