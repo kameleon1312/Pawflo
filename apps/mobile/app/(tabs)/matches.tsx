@@ -1,27 +1,29 @@
 import { useEffect } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
-  Image,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
-import { useMatches } from '@/hooks/useMachDog';
+import { useMatches, useUnmatch } from '@/hooks/useMachDog';
 import { useMatchBadgeStore } from '@/stores/matchBadgeStore';
 import type { MatchSummary } from '@pawflo/types';
 
 const s = strings.dopasowania;
 
 export default function DopasowaniaScreen() {
-  const router = useRouter();
+  const router    = useRouter();
   const { data: matches, isLoading, isError, refetch } = useMatches();
-  const markSeen = useMatchBadgeStore((s) => s.markSeen);
+  const markSeen  = useMatchBadgeStore((s) => s.markSeen);
+  const unmatch   = useUnmatch();
 
   useEffect(() => {
     markSeen();
@@ -32,6 +34,25 @@ export default function DopasowaniaScreen() {
       pathname: '/chat/[matchId]',
       params: { matchId: match.id, dogName: match.otherDog?.name ?? '' },
     });
+  }
+
+  function handleLongPress(match: MatchSummary) {
+    const name = match.otherDog?.name ?? 'psa';
+    Alert.alert(
+      `Cofnij dopasowanie z ${name}?`,
+      'Czat zostanie usunięty i nie będziecie mogli się ponownie dopasować.',
+      [
+        { text: 'Anuluj', style: 'cancel' },
+        {
+          text: 'Cofnij',
+          style: 'destructive',
+          onPress: () =>
+            unmatch.mutate(match.id, {
+              onError: () => Alert.alert('', 'Nie udało się cofnąć dopasowania.'),
+            }),
+        },
+      ],
+    );
   }
 
   return (
@@ -66,7 +87,11 @@ export default function DopasowaniaScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           renderItem={({ item }) => (
-            <MatchRow match={item} onPress={() => handleOpen(item)} />
+            <MatchRow
+              match={item}
+              onPress={() => handleOpen(item)}
+              onLongPress={() => handleLongPress(item)}
+            />
           )}
         />
       )}
@@ -74,7 +99,7 @@ export default function DopasowaniaScreen() {
   );
 }
 
-function MatchRow({ match, onPress }: { match: MatchSummary; onPress: () => void }) {
+function MatchRow({ match, onPress, onLongPress }: { match: MatchSummary; onPress: () => void; onLongPress: () => void }) {
   const photo = match.otherDog?.photos[0];
   const name = match.otherDog?.name ?? '—';
   const timeLabel = formatTime(match.lastMessageAt ?? match.createdAt);
@@ -84,11 +109,14 @@ function MatchRow({ match, onPress }: { match: MatchSummary; onPress: () => void
     <Pressable
       style={({ pressed }) => [styles.row, pressed && { opacity: 0.7 }]}
       onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={400}
       accessibilityRole="button"
       accessibilityLabel={`Otwórz czat z ${name}`}
+      accessibilityHint="Przytrzymaj, aby cofnąć dopasowanie"
     >
       {photo ? (
-        <Image source={{ uri: photo.url }} style={styles.avatar} />
+        <Image source={{ uri: photo.url }} style={styles.avatar} contentFit="cover" />
       ) : (
         <View style={[styles.avatar, styles.avatarPlaceholder]}>
           <Text style={{ fontSize: 28 }}>🐶</Text>
