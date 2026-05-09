@@ -39,6 +39,8 @@ export default function Step2PhotosScreen() {
     if (result.canceled || !dog) return;
 
     const asset = result.assets[0];
+    if (!asset) return;
+
     const mimeType = asset.mimeType ?? 'image/jpeg';
     const fileName = asset.fileName ?? `photo_${Date.now()}.jpg`;
 

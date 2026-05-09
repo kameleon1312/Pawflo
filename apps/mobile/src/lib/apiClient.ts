@@ -49,7 +49,8 @@ async function uploadRequest<T>(path: string, formData: FormData): Promise<T> {
   const headers: Record<string, string> = {};
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
-  const res = await fetch(`${API_URL}${path}`, { method: 'POST', headers, body: formData });
+  // RN's fetch types don't align with FormData — cast required
+  const res = await fetch(`${API_URL}${path}`, { method: 'POST', headers, body: formData as unknown as BodyInit_ });
 
   if (res.status === 204) return undefined as T;
   const body: unknown = await res.json().catch(() => ({ error: 'Nieznany błąd serwera.' }));

@@ -135,6 +135,8 @@ export default function DogEditScreen() {
     if (result.canceled) return;
 
     const asset = result.assets[0];
+    if (!asset) return;
+
     uploadPhoto(
       {
         dogId: dog.id,
