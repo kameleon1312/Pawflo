@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { SendMessageSchema } from '@pawflo/validation';
 import { requireAuth } from '../middleware/requireAuth';
+import { emitNewMessage } from '../lib/socket';
 
 async function getMatchForUser(
   app: FastifyInstance,
@@ -67,6 +68,9 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
         data: { lastMessageAt: new Date() },
       }),
     ]);
+
+    // Broadcast to all room members (including sender) for instant UI update
+    emitNewMessage(matchId, message);
 
     return reply.status(201).send({ message });
   });

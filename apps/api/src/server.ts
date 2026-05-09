@@ -1,6 +1,7 @@
 import './lib/sentry'; // must be first — instruments Node.js before other modules load
 import path from 'path';
 import Fastify from 'fastify';
+import { createSocketServer } from './lib/socket';
 import multipart from '@fastify/multipart';
 import staticFiles from '@fastify/static';
 import * as Sentry from '@sentry/node';
@@ -74,6 +75,9 @@ async function bootstrap(): Promise<void> {
 
   const port = Number(process.env['PORT'] ?? 3001);
   await app.listen({ port, host: '0.0.0.0' });
+
+  // Attach Socket.io to the underlying Node.js http.Server after Fastify binds the port
+  createSocketServer(app.server);
 }
 
 bootstrap().catch((err) => {

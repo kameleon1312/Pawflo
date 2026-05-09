@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { api } from '@/lib/apiClient';
 import { tokenStorage } from '@/lib/secureStorage';
+import { disconnectSocket } from '@/lib/socket';
 import { useAuthStore } from '@/stores/authStore';
 
 export function useLogin() {
@@ -68,6 +69,7 @@ export function useLogout() {
       if (refreshToken) await api.auth.logout(refreshToken);
     },
     onSettled: async () => {
+      disconnectSocket();
       await tokenStorage.clearTokens();
       clearAuth();
       router.replace('/(auth)/login');

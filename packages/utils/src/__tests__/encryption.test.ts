@@ -31,7 +31,7 @@ describe('encrypt / decrypt', () => {
   it('decrypt throws on tampered ciphertext', () => {
     const ciphertext = encrypt('sensitive');
     const buf = Buffer.from(ciphertext, 'base64');
-    buf[30] ^= 0xff; // flip bits in encrypted body
+    buf.writeUInt8((buf[30] ?? 0) ^ 0xff, 30); // flip bits in encrypted body
     expect(() => decrypt(buf.toString('base64'))).toThrow();
   });
 
