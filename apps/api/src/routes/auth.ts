@@ -256,10 +256,20 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
   app.post('/logout', async (req, reply) => {
     const parsed = RefreshTokenSchema.safeParse(req.body);
     if (parsed.success) {
+      const tokenHash = hashToken(parsed.data.refreshToken);
+      const stored = await app.prisma.refreshToken.findFirst({
+        where: { token: tokenHash },
+        select: { userId: true },
+      });
       await app.prisma.refreshToken.updateMany({
-        where: { token: hashToken(parsed.data.refreshToken) },
+        where: { token: tokenHash },
         data: { revokedAt: new Date() },
       });
+      if (stored) {
+        await app.prisma.auditLog.create({
+          data: { userId: stored.userId, action: 'LOGOUT', ipHash: hashIp(req.ip) },
+        });
+      }
     }
     return reply.status(204).send();
   });

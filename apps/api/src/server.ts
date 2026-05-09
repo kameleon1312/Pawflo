@@ -41,7 +41,14 @@ app.setErrorHandler((error, req, reply) => {
   });
 });
 
+function validateEnv(): void {
+  const key = process.env['ENCRYPTION_KEY'];
+  if (!key) throw new Error('ENCRYPTION_KEY must be set');
+  if (Buffer.from(key, 'base64').length !== 32) throw new Error('ENCRYPTION_KEY must be 32 bytes (base64-encoded)');
+}
+
 async function bootstrap(): Promise<void> {
+  validateEnv();
   await registerSecurity(app);
   await app.register(prismaPlugin);
 
