@@ -23,7 +23,7 @@ export default function TabsLayout() {
       />
       <Tabs.Screen name="pawpanel"     options={{ title: 'Zdrowie' }} />
       <Tabs.Screen name="machdog"      options={{ title: 'MachDog' }} />
-      <Tabs.Screen name="dopasowania"  options={{ title: 'Dopasowania' }} />
+      <Tabs.Screen name="matches"       options={{ title: 'Dopasowania' }} />
       <Tabs.Screen name="pawmap"       options={{ title: 'Mapa' }} />
       <Tabs.Screen name="profile"      options={{ title: 'Profil' }} />
     </Tabs>

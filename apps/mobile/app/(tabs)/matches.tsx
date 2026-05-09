@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -12,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
 import { useMatches } from '@/hooks/useMachDog';
+import { useMatchBadgeStore } from '@/stores/matchBadgeStore';
 import type { MatchSummary } from '@pawflo/types';
 
 const s = strings.dopasowania;
@@ -19,6 +21,11 @@ const s = strings.dopasowania;
 export default function DopasowaniaScreen() {
   const router = useRouter();
   const { data: matches, isLoading, isError, refetch } = useMatches();
+  const markSeen = useMatchBadgeStore((s) => s.markSeen);
+
+  useEffect(() => {
+    markSeen();
+  }, [markSeen]);
 
   function handleOpen(match: MatchSummary) {
     router.push({
@@ -71,6 +78,7 @@ function MatchRow({ match, onPress }: { match: MatchSummary; onPress: () => void
   const photo = match.otherDog?.photos[0];
   const name = match.otherDog?.name ?? '—';
   const timeLabel = formatTime(match.lastMessageAt ?? match.createdAt);
+  const preview = match.lastMessage?.text ?? null;
 
   return (
     <Pressable
@@ -87,8 +95,13 @@ function MatchRow({ match, onPress }: { match: MatchSummary; onPress: () => void
         </View>
       )}
       <View style={styles.rowInfo}>
-        <Text style={styles.rowName} numberOfLines={1}>{name}</Text>
-        <Text style={styles.rowTime}>{timeLabel}</Text>
+        <View style={styles.rowTop}>
+          <Text style={styles.rowName} numberOfLines={1}>{name}</Text>
+          <Text style={styles.rowTime}>{timeLabel}</Text>
+        </View>
+        <Text style={styles.rowPreview} numberOfLines={1}>
+          {preview ?? 'Zacznij rozmowę!'}
+        </Text>
       </View>
       <Text style={styles.chevron}>›</Text>
     </Pressable>
@@ -192,15 +205,29 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rowInfo: { flex: 1, gap: 3 },
+  rowTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
   rowName: {
     fontFamily: 'Cabinet Grotesk-Bold',
     fontSize: FontSize.body,
     color: Colors.cream,
+    flex: 1,
   },
   rowTime: {
     fontFamily: Fonts.sans,
     fontSize: FontSize.caption,
     color: Colors.textFaint,
+    flexShrink: 0,
+  },
+  rowPreview: {
+    fontFamily: Fonts.sans,
+    fontSize: FontSize.caption,
+    color: Colors.textFaint,
+    lineHeight: FontSize.caption * 1.4,
   },
   chevron: {
     fontSize: 22,

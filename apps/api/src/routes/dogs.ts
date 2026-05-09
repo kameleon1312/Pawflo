@@ -1,8 +1,19 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { CreateDogSchema, UpdateDogSchema } from '@pawflo/validation';
+import { encrypt, decrypt } from '@pawflo/utils';
 import { requireAuth } from '../middleware/requireAuth';
 import { logger } from '../lib/logger';
+
+type DogRow = {
+  chipNumberEncrypted: string | null;
+  [key: string]: unknown;
+};
+
+function formatDog<T extends DogRow>(dog: T): Omit<T, 'chipNumberEncrypted'> & { chipNumber: string | null } {
+  const { chipNumberEncrypted, ...rest } = dog;
+  return { ...rest, chipNumber: chipNumberEncrypted ? decrypt(chipNumberEncrypted) : null };
+}
 
 const PhotoBody = z.object({
   url: z
@@ -23,7 +34,7 @@ export async function dogRoutes(app: FastifyInstance): Promise<void> {
       include: { photos: { orderBy: { order: 'asc' } } },
       orderBy: { createdAt: 'asc' },
     });
-    return reply.send({ dogs });
+    return reply.send({ dogs: dogs.map(formatDog) });
   });
 
   // POST /api/dogs — create dog
@@ -33,18 +44,19 @@ export async function dogRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(422).send({ error: 'Nieprawidłowe dane.', details: parsed.error.flatten() });
     }
 
-    const { birthDate, ...rest } = parsed.data;
+    const { birthDate, chipNumber, ...rest } = parsed.data;
     const dog = await app.prisma.dog.create({
       data: {
         ...rest,
         birthDate: birthDate ? new Date(birthDate) : null,
         ownerId: req.userId!,
+        chipNumberEncrypted: chipNumber ? encrypt(chipNumber) : null,
       },
       include: { photos: true },
     });
 
     logger.info({ event: 'dog.create', dogId: dog.id, userId: req.userId }, 'Dog created');
-    return reply.status(201).send({ dog });
+    return reply.status(201).send({ dog: formatDog(dog) });
   });
 
   // GET /api/dogs/:id
@@ -55,7 +67,7 @@ export async function dogRoutes(app: FastifyInstance): Promise<void> {
       include: { photos: { orderBy: { order: 'asc' } } },
     });
     if (!dog) return reply.status(404).send({ error: 'Pies nie znaleziony.' });
-    return reply.send({ dog });
+    return reply.send({ dog: formatDog(dog) });
   });
 
   // PATCH /api/dogs/:id
@@ -71,16 +83,17 @@ export async function dogRoutes(app: FastifyInstance): Promise<void> {
     });
     if (!existing) return reply.status(404).send({ error: 'Pies nie znaleziony.' });
 
-    const { birthDate, ...rest } = parsed.data;
+    const { birthDate, chipNumber, ...rest } = parsed.data;
     const dog = await app.prisma.dog.update({
       where: { id },
       data: {
         ...rest,
         ...(birthDate !== undefined ? { birthDate: birthDate ? new Date(birthDate) : null } : {}),
+        ...(chipNumber !== undefined ? { chipNumberEncrypted: chipNumber ? encrypt(chipNumber) : null } : {}),
       },
       include: { photos: { orderBy: { order: 'asc' } } },
     });
-    return reply.send({ dog });
+    return reply.send({ dog: formatDog(dog) });
   });
 
   // DELETE /api/dogs/:id — soft delete

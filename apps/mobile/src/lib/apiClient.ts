@@ -192,6 +192,9 @@ export const api = {
   matches: {
     list: () =>
       request<{ matches: MatchSummary[] }>('/api/matches'),
+
+    unmatch: (matchId: string) =>
+      request<void>(`/api/matches/${matchId}`, { method: 'DELETE' }),
   },
 
   chat: {

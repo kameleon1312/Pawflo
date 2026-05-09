@@ -25,8 +25,8 @@ type Zone = {
 // Pixel measurements: outer toes ~(78,208) & (462,208); inner toes ~(197,135) & (343,135); pad ~(270,363).
 const ZONES: Zone[] = [
   { label: 'Profil psa',  icon: 'paw-outline',        route: '/(tabs)/profile',  cx: 21,   cy: 42.5, r: 32 },
-  { label: 'Dopasowania', icon: 'heart',               route: '/(tabs)/machdog',  cx: 38.5, cy: 25,   r: 32 },
-  { label: 'Czat',        icon: 'chatbubbles-outline', route: '/(tabs)/machdog',  cx: 61.5, cy: 25,   r: 32 },
+  { label: 'Dopasowania', icon: 'heart',               route: '/(tabs)/matches',  cx: 38.5, cy: 25,   r: 32 },
+  { label: 'Czat',        icon: 'chatbubbles-outline', route: '/(tabs)/matches',  cx: 61.5, cy: 25,   r: 32 },
   { label: 'Zdrowie',     icon: 'fitness-outline',     route: '/(tabs)/pawpanel', cx: 80,   cy: 42.5, r: 32 },
   { label: 'MachDog',     icon: 'heart',               route: '/(tabs)/machdog',  cx: 50,   cy: 67,   r: 44, isCenter: true },
 ];

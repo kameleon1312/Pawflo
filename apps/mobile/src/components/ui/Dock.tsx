@@ -6,6 +6,8 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
+import { useMatches } from '@/hooks/useMachDog';
+import { useMatchBadgeStore } from '@/stores/matchBadgeStore';
 
 // Derive the tab bar props type from expo-router's Tabs component
 // so we don't need @react-navigation/bottom-tabs as a direct dependency.
@@ -19,7 +21,7 @@ const ICONS: Record<string, { active: IconName; inactive: IconName }> = {
   index:        { active: 'home',           inactive: 'home-outline' },
   pawpanel:     { active: 'fitness',        inactive: 'fitness-outline' },
   machdog:      { active: 'heart',          inactive: 'heart-outline' },
-  dopasowania:  { active: 'chatbubbles',    inactive: 'chatbubbles-outline' },
+  matches:      { active: 'chatbubbles',    inactive: 'chatbubbles-outline' },
   pawmap:       { active: 'map',            inactive: 'map-outline' },
   profile:      { active: 'person-circle',  inactive: 'person-circle-outline' },
 };
@@ -27,6 +29,11 @@ const ICONS: Record<string, { active: IconName; inactive: IconName }> = {
 // Shown on all tabs except home — standard dark tab bar
 export function SimpleTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
+  const matchData = useMatches();
+  const lastSeenAt = useMatchBadgeStore((s) => s.lastSeenAt);
+  const unreadCount = (matchData.data ?? []).filter(
+    (m) => new Date(m.lastMessageAt ?? m.createdAt).getTime() > lastSeenAt,
+  ).length;
 
   return (
     <View style={[simpleStyles.wrapper, { paddingBottom: Math.max(insets.bottom, 8) }]}>
@@ -35,6 +42,7 @@ export function SimpleTabBar({ state, descriptors, navigation }: BottomTabBarPro
         const label = (descriptors[route.key]?.options.title ?? route.name) as string;
         const icons = ICONS[route.name];
         const iconName = isFocused ? icons?.active : icons?.inactive;
+        const showBadge = route.name === 'matches' && unreadCount > 0;
 
         const onPress = () => {
           const event = navigation.emit({
@@ -54,11 +62,20 @@ export function SimpleTabBar({ state, descriptors, navigation }: BottomTabBarPro
             accessibilityLabel={label}
             accessibilityState={{ selected: isFocused }}
           >
-            <Ionicons
-              name={iconName ?? 'ellipse-outline'}
-              size={22}
-              color={isFocused ? Colors.coral : Colors.textFaint}
-            />
+            <View>
+              <Ionicons
+                name={iconName ?? 'ellipse-outline'}
+                size={22}
+                color={isFocused ? Colors.coral : Colors.textFaint}
+              />
+              {showBadge && (
+                <View style={sharedStyles.badge}>
+                  <Text style={sharedStyles.badgeText}>
+                    {unreadCount > 9 ? '9+' : String(unreadCount)}
+                  </Text>
+                </View>
+              )}
+            </View>
             <Text style={[simpleStyles.label, isFocused && simpleStyles.labelActive]}>
               {label}
             </Text>
@@ -73,6 +90,11 @@ export function SimpleTabBar({ state, descriptors, navigation }: BottomTabBarPro
 export function Dock({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(80)).current;
+  const matchData = useMatches();
+  const lastSeenAt = useMatchBadgeStore((s) => s.lastSeenAt);
+  const unreadCount = (matchData.data ?? []).filter(
+    (m) => new Date(m.lastMessageAt ?? m.createdAt).getTime() > lastSeenAt,
+  ).length;
 
   useEffect(() => {
     Animated.spring(translateY, {
@@ -135,6 +157,7 @@ export function Dock({ state, descriptors, navigation }: BottomTabBarProps) {
 
         const icons = ICONS[route.name];
         const iconName = isFocused ? icons?.active : icons?.inactive;
+        const showBadge = route.name === 'matches' && unreadCount > 0;
 
         return (
           <Pressable
@@ -145,11 +168,20 @@ export function Dock({ state, descriptors, navigation }: BottomTabBarProps) {
             accessibilityLabel={label}
             accessibilityState={{ selected: isFocused }}
           >
-            <Ionicons
-              name={iconName ?? 'ellipse-outline'}
-              size={22}
-              color={isFocused ? Colors.coral : Colors.textFaint}
-            />
+            <View>
+              <Ionicons
+                name={iconName ?? 'ellipse-outline'}
+                size={22}
+                color={isFocused ? Colors.coral : Colors.textFaint}
+              />
+              {showBadge && (
+                <View style={sharedStyles.badge}>
+                  <Text style={sharedStyles.badgeText}>
+                    {unreadCount > 9 ? '9+' : String(unreadCount)}
+                  </Text>
+                </View>
+              )}
+            </View>
             <Text style={[dockStyles.label, isFocused && dockStyles.labelActive]}>{label}</Text>
             {isFocused && <View style={dockStyles.dot} />}
           </Pressable>
@@ -160,6 +192,29 @@ export function Dock({ state, descriptors, navigation }: BottomTabBarProps) {
 }
 
 // ─── Styles ──────────────────────────────────────────────────────────────────
+
+const sharedStyles = StyleSheet.create({
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.coral,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: Colors.ink,
+  },
+  badgeText: {
+    fontFamily: 'Cabinet Grotesk-Bold',
+    fontSize: 9,
+    color: Colors.cream,
+    lineHeight: 12,
+  },
+});
 
 const simpleStyles = StyleSheet.create({
   wrapper: {

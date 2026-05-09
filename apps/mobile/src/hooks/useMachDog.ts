@@ -30,5 +30,16 @@ export function useMatches() {
   return useQuery({
     queryKey: MATCHES_KEY,
     queryFn: () => api.matches.list().then((r) => r.matches),
+    refetchInterval: 10_000,
+  });
+}
+
+export function useUnmatch() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (matchId: string) => api.matches.unmatch(matchId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: MATCHES_KEY });
+    },
   });
 }

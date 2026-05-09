@@ -16,6 +16,7 @@ export interface Dog {
   birthDate: string | null;
   sex: DogSex;
   size: DogSize;
+  chipNumber: string | null;
   bio: string | null;
   traits: string[];
   activityLevel: ActivityLevel;

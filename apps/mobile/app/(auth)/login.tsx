@@ -54,7 +54,7 @@ export default function LoginScreen() {
           {registered === '1' && (
             <View style={styles.successBanner} accessibilityRole="alert">
               <Text style={styles.successText}>
-                Konto utworzone — możesz się zalogować.
+                Konto utworzone! Sprawdź e-mail i kliknij link weryfikacyjny, aby się zalogować.
               </Text>
             </View>
           )}

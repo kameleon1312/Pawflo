@@ -55,7 +55,7 @@ export default function MachdogScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.title}>{s.title}</Text>
@@ -107,7 +107,7 @@ export default function MachdogScreen() {
             </Text>
             <Pressable
               style={styles.modalBtn}
-              onPress={() => { dismissMatch(); router.navigate('/(tabs)/dopasowania'); }}
+              onPress={() => { dismissMatch(); router.navigate('/(tabs)/matches'); }}
             >
               <Text style={styles.modalBtnText}>{s.matchGoToChat}</Text>
             </Pressable>

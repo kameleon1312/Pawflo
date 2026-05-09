@@ -85,6 +85,10 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
       return reply.status(401).send({ error: 'Nieprawidłowy e-mail lub hasło.' });
     }
 
+    if (!user.emailVerified) {
+      return reply.status(403).send({ error: 'Potwierdź adres e-mail przed zalogowaniem.', code: 'EMAIL_NOT_VERIFIED' });
+    }
+
     const accessToken = signAccessToken(user.id);
     const rawRefreshToken = signRefreshToken(user.id);
 
@@ -109,7 +113,7 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     const dogCount = await app.prisma.dog.count({ where: { ownerId: user.id, deletedAt: null } });
 
     logger.info({ event: 'auth.login', userId: user.id }, 'User logged in');
-    return reply.send({ accessToken, refreshToken: rawRefreshToken, user: { id: user.id, email: user.email, plan: user.plan }, hasDog: dogCount > 0 });
+    return reply.send({ accessToken, refreshToken: rawRefreshToken, user: { id: user.id, email: user.email, emailVerified: user.emailVerified, plan: user.plan }, hasDog: dogCount > 0 });
   });
 
   // POST /auth/refresh

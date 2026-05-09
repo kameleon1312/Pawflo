@@ -27,5 +27,6 @@ export interface MatchSummary {
   status: MatchStatus;
   createdAt: string;
   lastMessageAt: string | null;
+  lastMessage: { text: string; createdAt: string } | null;
   otherDog: DogSummary | null;
 }

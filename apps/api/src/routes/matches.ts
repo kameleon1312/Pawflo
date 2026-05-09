@@ -17,6 +17,13 @@ export async function matchRoutes(app: FastifyInstance): Promise<void> {
         OR: [{ dogAId: myDog.id }, { dogBId: myDog.id }],
         status: 'MATCHED',
       },
+      include: {
+        messages: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { text: true, createdAt: true },
+        },
+      },
       orderBy: [{ lastMessageAt: 'desc' }, { createdAt: 'desc' }],
     });
 
@@ -34,11 +41,15 @@ export async function matchRoutes(app: FastifyInstance): Promise<void> {
     const result = matches.map((m) => {
       const otherDogId = m.dogAId === myDog.id ? m.dogBId : m.dogAId;
       const other = dogMap.get(otherDogId);
+      const last = m.messages[0] ?? null;
       return {
         id: m.id,
         status: m.status,
         createdAt: m.createdAt,
         lastMessageAt: m.lastMessageAt,
+        lastMessage: last
+          ? { text: last.text, createdAt: last.createdAt.toISOString() }
+          : null,
         otherDog: other
           ? {
               id: other.id,
@@ -54,5 +65,33 @@ export async function matchRoutes(app: FastifyInstance): Promise<void> {
     });
 
     return reply.send({ matches: result });
+  });
+
+  // DELETE /api/matches/:matchId — unmatch
+  app.delete('/:matchId', async (req, reply) => {
+    const { matchId } = req.params as { matchId: string };
+
+    const myDog = await app.prisma.dog.findFirst({
+      where: { ownerId: req.userId!, deletedAt: null },
+      select: { id: true },
+    });
+    if (!myDog) return reply.status(404).send({ error: 'Nie znaleziono psa.' });
+
+    const match = await app.prisma.match.findFirst({
+      where: {
+        id: matchId,
+        OR: [{ dogAId: myDog.id }, { dogBId: myDog.id }],
+        status: 'MATCHED',
+      },
+      select: { id: true },
+    });
+    if (!match) return reply.status(404).send({ error: 'Dopasowanie nie istnieje.' });
+
+    await app.prisma.match.update({
+      where: { id: match.id },
+      data: { status: 'UNMATCHED' },
+    });
+
+    return reply.status(204).send();
   });
 }

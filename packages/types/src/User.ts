@@ -16,10 +16,15 @@ export interface User {
 }
 
 // Returned by auth endpoints — never includes passwordHash
-export type AuthUser = Pick<
-  User,
-  'id' | 'email' | 'emailVerified' | 'firstName' | 'lastName' | 'plan'
->;
+export interface AuthUser {
+  id: string;
+  email: string;
+  emailVerified: boolean;
+  firstName: string | null;
+  lastName: string | null;
+  phone: string | null;
+  plan: Plan;
+}
 
 export interface UserProfile extends AuthUser {
   dogs: import('./Dog').DogSummary[];

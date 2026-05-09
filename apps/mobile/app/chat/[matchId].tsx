@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -17,6 +18,7 @@ import { Colors, Fonts, FontSize } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
 import { useAuthStore } from '@/stores/authStore';
 import { useMessages, useSendMessage } from '@/hooks/useChat';
+import { useUnmatch } from '@/hooks/useMachDog';
 import type { Message } from '@pawflo/types';
 
 const s = strings.chat;
@@ -30,6 +32,7 @@ export default function ChatScreen() {
 
   const messages  = useMessages(matchId);
   const send      = useSendMessage(matchId);
+  const unmatch   = useUnmatch();
 
   const [text,      setText]      = useState('');
   const [sendError, setSendError] = useState(false);
@@ -41,6 +44,25 @@ export default function ChatScreen() {
       setTimeout(() => listRef.current?.scrollToEnd({ animated: false }), 80);
     }
   }, [messages.data?.length]);
+
+  function handleUnmatch() {
+    const s = strings.chat;
+    Alert.alert(s.unmatchTitle, s.unmatchMessage, [
+      { text: s.unmatchCancel, style: 'cancel' },
+      {
+        text: s.unmatchConfirm,
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await unmatch.mutateAsync(matchId);
+            router.back();
+          } catch {
+            Alert.alert('', s.unmatchError);
+          }
+        },
+      },
+    ]);
+  }
 
   async function handleSend() {
     const trimmed = text.trim();
@@ -64,7 +86,15 @@ export default function ChatScreen() {
           <Ionicons name="chevron-back" size={24} color={Colors.cream} />
         </Pressable>
         <Text style={styles.headerTitle} numberOfLines={1}>{dogName ?? '—'}</Text>
-        <View style={{ width: 40 }} />
+        <Pressable
+          onPress={handleUnmatch}
+          hitSlop={12}
+          style={styles.moreBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Opcje dopasowania"
+        >
+          <Ionicons name="ellipsis-horizontal" size={22} color={Colors.textFaint} />
+        </Pressable>
       </View>
 
       <KeyboardAvoidingView
@@ -209,6 +239,7 @@ const styles = StyleSheet.create({
   },
   backBtn:     { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   headerTitle: { flex: 1, textAlign: 'center', fontFamily: 'Fraunces-Bold', fontSize: FontSize.h4, color: Colors.cream },
+  moreBtn:     { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
 
   emptyEmoji: { fontSize: 48, marginBottom: 8 },
   emptyTitle: { fontFamily: 'Fraunces-Bold', fontSize: FontSize.h3, color: Colors.cream, textAlign: 'center' },

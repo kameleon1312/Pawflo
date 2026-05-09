@@ -11,6 +11,7 @@ export const CreateDogSchema = z.object({
   birthDate: z.string().datetime().nullable().optional(),
   sex: z.enum(['MALE', 'FEMALE']),
   size: z.enum(['SMALL', 'MEDIUM', 'LARGE']),
+  chipNumber: z.string().max(20).trim().nullable().optional(),
   bio: z.string().max(500).trim().nullable().optional(),
   traits: z.array(z.enum(ALLOWED_TRAITS)).max(8),
   activityLevel: z.enum(['CALM', 'MODERATE', 'ACTIVE']).default('MODERATE'),

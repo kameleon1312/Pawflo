@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -9,6 +9,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import type { CandidateDog } from '@pawflo/types';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
 
@@ -25,6 +26,10 @@ type Props = {
 
 export function SwipeCard({ dog, onSwipe }: Props) {
   const pan = useRef(new Animated.ValueXY()).current;
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const photoIndexRef = useRef(0);
+  const photosRef = useRef(dog.photos);
+  photosRef.current = dog.photos;
 
   const rotate = pan.x.interpolate({
     inputRange: [-SCREEN_W / 2, 0, SCREEN_W / 2],
@@ -53,6 +58,13 @@ export function SwipeCard({ dog, onSwipe }: Props) {
       onPanResponderRelease: (_, gesture) => {
         if (Math.abs(gesture.dx) > SWIPE_THRESHOLD) {
           flyOut(gesture.dx > 0 ? 'LIKE' : 'PASS', gesture.dy);
+        } else if (Math.abs(gesture.dx) < 8 && Math.abs(gesture.dy) < 8) {
+          const len = photosRef.current.length;
+          if (len > 1) {
+            const next = (photoIndexRef.current + 1) % len;
+            photoIndexRef.current = next;
+            setPhotoIndex(next);
+          }
         } else {
           Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
         }
@@ -61,6 +73,11 @@ export function SwipeCard({ dog, onSwipe }: Props) {
   ).current;
 
   function flyOut(direction: 'LIKE' | 'PASS', dy = 0) {
+    if (direction === 'LIKE') {
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } else {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
     const toX = direction === 'LIKE' ? SCREEN_W * 1.6 : -SCREEN_W * 1.6;
     Animated.timing(pan, {
       toValue: { x: toX, y: dy },
@@ -69,12 +86,14 @@ export function SwipeCard({ dog, onSwipe }: Props) {
     }).start(() => onSwipe(direction));
   }
 
-  // Reset card position when the dog changes (next card rendered)
+  // Reset card position and photo index when the dog changes (next card rendered)
   useEffect(() => {
     pan.setValue({ x: 0, y: 0 });
+    photoIndexRef.current = 0;
+    setPhotoIndex(0);
   }, [dog.id, pan]);
 
-  const photo = dog.photos[0];
+  const photo = dog.photos[photoIndex] ?? dog.photos[0];
   const ageLabel = dog.birthDate ? formatAge(dog.birthDate) : null;
 
   return (
@@ -91,6 +110,15 @@ export function SwipeCard({ dog, onSwipe }: Props) {
       ) : (
         <View style={styles.photoPlaceholder}>
           <Text style={styles.photoPlaceholderText}>🐾</Text>
+        </View>
+      )}
+
+      {/* Progress dots */}
+      {dog.photos.length > 1 && (
+        <View style={styles.dotsRow}>
+          {dog.photos.map((_, i) => (
+            <View key={i} style={[styles.dotBar, i === photoIndex && styles.dotBarActive]} />
+          ))}
         </View>
       )}
 
@@ -172,6 +200,24 @@ const styles = StyleSheet.create({
   },
 
   photo: { width: '100%', height: '100%', position: 'absolute' },
+
+  dotsRow: {
+    position: 'absolute',
+    top: 10,
+    left: 8,
+    right: 8,
+    flexDirection: 'row',
+    gap: 4,
+  },
+  dotBar: {
+    flex: 1,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: 'rgba(248,239,226,0.35)',
+  },
+  dotBarActive: {
+    backgroundColor: Colors.cream,
+  },
   photoPlaceholder: {
     flex: 1,
     alignItems: 'center',
