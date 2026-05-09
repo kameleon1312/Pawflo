@@ -1,10 +1,6 @@
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
+import { SendMessageSchema } from '@pawflo/validation';
 import { requireAuth } from '../middleware/requireAuth';
-
-const SendMessageBody = z.object({
-  text: z.string().min(1).max(2000).trim(),
-});
 
 async function getMatchForUser(
   app: FastifyInstance,
@@ -53,7 +49,7 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
     const ctx = await getMatchForUser(app, matchId, req.userId!);
     if (!ctx) return reply.status(404).send({ error: 'Rozmowa nie znaleziona.' });
 
-    const parsed = SendMessageBody.safeParse(req.body);
+    const parsed = SendMessageSchema.safeParse(req.body);
     if (!parsed.success) {
       return reply.status(422).send({ error: 'Wiadomość nie może być pusta.' });
     }

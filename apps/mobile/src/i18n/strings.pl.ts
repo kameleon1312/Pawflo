@@ -2,6 +2,7 @@ export const strings = {
   tabs: {
     home: 'Dom',
     machdog: 'MachDog',
+    dopasowania: 'Dopasowania',
     pawpanel: 'Zdrowie',
     pawmap: 'Mapa',
     profile: 'Profil',
@@ -126,9 +127,16 @@ export const strings = {
     noMoreCta: 'Odśwież',
     matchTitle: 'To dopasowanie!',
     matchSubtitle: 'Wasze psy się polubili — czas się przywitać!',
-    matchContinue: 'Super!',
+    matchGoToChat: 'Przejdź do czatu →',
+    matchContinue: 'Może później',
     matchesSection: 'Twoje dopasowania',
     noMatchesYet: 'Jeszcze brak dopasowań.\nSwipe\'uj, żeby znaleźć przyjaciela!',
+  },
+  dopasowania: {
+    title: 'Dopasowania',
+    empty: 'Jeszcze brak dopasowań.\nSwipe\'uj w MachDog!',
+    errorNetwork: 'Błąd połączenia',
+    retry: 'Spróbuj ponownie',
   },
   errors: {
     generic: 'Coś poszło nie tak. Spróbuj ponownie.',

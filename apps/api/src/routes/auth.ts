@@ -1,8 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
-import { RegisterSchema, LoginSchema, RefreshTokenSchema } from '@pawflo/validation';
+import { RegisterSchema, LoginSchema, RefreshTokenSchema, VerifyEmailSchema } from '@pawflo/validation';
 import { hashPassword, verifyPassword } from '../lib/crypto';
-import { signAccessToken, signRefreshToken, verifyRefreshToken, hashToken } from '../lib/jwt';
+import { signAccessToken, signRefreshToken, verifyRefreshToken, hashToken, IP_SALT } from '../lib/jwt';
 import { sendVerificationEmail } from '../lib/email';
 import { logger } from '../lib/logger';
 import crypto from 'crypto';
@@ -152,6 +152,37 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({ accessToken: newAccessToken, refreshToken: newRawRefreshToken });
   });
 
+  // POST /auth/verify-email
+  app.post('/verify-email', async (req, reply) => {
+    const parsed = VerifyEmailSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(422).send({ error: 'Nieprawidłowe dane.' });
+    }
+
+    const tokenHash = hashToken(parsed.data.token);
+
+    const user = await app.prisma.user.findFirst({
+      where: { emailVerifyTokenHash: tokenHash },
+      select: { id: true, emailVerified: true },
+    });
+
+    if (!user) {
+      return reply.status(400).send({ error: 'Link weryfikacyjny wygasł lub jest nieprawidłowy.' });
+    }
+
+    if (user.emailVerified) {
+      return reply.send({ ok: true });
+    }
+
+    await app.prisma.user.update({
+      where: { id: user.id },
+      data: { emailVerified: true, emailVerifyTokenHash: null },
+    });
+
+    logger.info({ event: 'auth.verify_email', userId: user.id }, 'Email verified');
+    return reply.send({ ok: true });
+  });
+
   // POST /auth/logout
   app.post('/logout', async (req, reply) => {
     const parsed = RefreshTokenSchema.safeParse(req.body);
@@ -166,5 +197,5 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
 }
 
 function hashIp(ip: string): string {
-  return crypto.createHash('sha256').update(ip + (process.env['IP_SALT'] ?? '')).digest('hex').slice(0, 16);
+  return crypto.createHash('sha256').update(ip + IP_SALT).digest('hex').slice(0, 16);
 }

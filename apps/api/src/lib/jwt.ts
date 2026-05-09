@@ -10,8 +10,9 @@ function requireEnv(name: string, minLength = 32): string {
 }
 
 // Fail fast at startup — missing or weak secrets cause a throw before any request is served.
-const ACCESS_SECRET = requireEnv('JWT_ACCESS_SECRET');
+const ACCESS_SECRET  = requireEnv('JWT_ACCESS_SECRET');
 const REFRESH_SECRET = requireEnv('JWT_REFRESH_SECRET');
+export const IP_SALT = requireEnv('IP_SALT', 16);
 
 const JWT_OPTIONS = {
   issuer: 'pawflo.app',

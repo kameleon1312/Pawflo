@@ -25,7 +25,7 @@ export async function matchRoutes(app: FastifyInstance): Promise<void> {
     );
 
     const otherDogs = await app.prisma.dog.findMany({
-      where: { id: { in: otherDogIds } },
+      where: { id: { in: otherDogIds }, deletedAt: null },
       include: { photos: { orderBy: { order: 'asc' }, take: 1 } },
     });
 

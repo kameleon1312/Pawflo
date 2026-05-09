@@ -189,6 +189,7 @@ model Match {
   @@unique([dogAId, dogBId])
   @@index([dogAId])
   @@index([dogBId])
+  @@index([lastMessageAt])
 }
 
 model Message {

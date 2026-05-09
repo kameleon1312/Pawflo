@@ -16,11 +16,12 @@ export type BottomTabBarProps = Parameters<
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
 const ICONS: Record<string, { active: IconName; inactive: IconName }> = {
-  index:    { active: 'home',          inactive: 'home-outline' },
-  pawpanel: { active: 'fitness',       inactive: 'fitness-outline' },
-  machdog:  { active: 'heart',         inactive: 'heart-outline' },
-  pawmap:   { active: 'map',           inactive: 'map-outline' },
-  profile:  { active: 'person-circle', inactive: 'person-circle-outline' },
+  index:        { active: 'home',           inactive: 'home-outline' },
+  pawpanel:     { active: 'fitness',        inactive: 'fitness-outline' },
+  machdog:      { active: 'heart',          inactive: 'heart-outline' },
+  dopasowania:  { active: 'chatbubbles',    inactive: 'chatbubbles-outline' },
+  pawmap:       { active: 'map',            inactive: 'map-outline' },
+  profile:      { active: 'person-circle',  inactive: 'person-circle-outline' },
 };
 
 // Shown on all tabs except home — standard dark tab bar

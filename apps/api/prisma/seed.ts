@@ -6,8 +6,13 @@
  *          or: DELETE FROM "User" WHERE email LIKE 'bot+%@pawflo.dev'
  */
 
+import { config } from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import argon2 from 'argon2';
+
+// Load .env.local first (Supabase), fallback to .env (local Postgres)
+config({ path: '.env.local', override: true });
+config();
 
 const prisma = new PrismaClient();
 

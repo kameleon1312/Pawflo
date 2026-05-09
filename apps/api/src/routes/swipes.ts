@@ -1,12 +1,7 @@
 import type { FastifyInstance } from 'fastify';
-import { z } from 'zod';
+import { SwipeSchema } from '@pawflo/validation';
 import { requireAuth } from '../middleware/requireAuth';
 import { logger } from '../lib/logger';
-
-const SwipeBody = z.object({
-  swipeeId: z.string().min(1),
-  direction: z.enum(['LIKE', 'PASS']),
-});
 
 export async function swipeRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireAuth);
@@ -44,7 +39,7 @@ export async function swipeRoutes(app: FastifyInstance): Promise<void> {
 
   // POST /api/swipes — record a swipe; returns { matched, matchId }
   app.post('/', async (req, reply) => {
-    const parsed = SwipeBody.safeParse(req.body);
+    const parsed = SwipeSchema.safeParse(req.body);
     if (!parsed.success) {
       return reply.status(422).send({ error: 'Nieprawidłowe dane.', details: parsed.error.flatten() });
     }

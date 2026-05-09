@@ -21,10 +21,11 @@ export default function TabsLayout() {
           tabBarStyle: { display: 'none' },  // prevents RN from reserving tab bar height
         }}
       />
-      <Tabs.Screen name="pawpanel" options={{ title: 'Zdrowie' }} />
-      <Tabs.Screen name="machdog"  options={{ title: 'MachDog' }} />
-      <Tabs.Screen name="pawmap"   options={{ title: 'Mapa' }} />
-      <Tabs.Screen name="profile"  options={{ title: 'Profil' }} />
+      <Tabs.Screen name="pawpanel"     options={{ title: 'Zdrowie' }} />
+      <Tabs.Screen name="machdog"      options={{ title: 'MachDog' }} />
+      <Tabs.Screen name="dopasowania"  options={{ title: 'Dopasowania' }} />
+      <Tabs.Screen name="pawmap"       options={{ title: 'Mapa' }} />
+      <Tabs.Screen name="profile"      options={{ title: 'Profil' }} />
     </Tabs>
   );
 }

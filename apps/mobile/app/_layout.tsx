@@ -13,16 +13,25 @@ import {
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Colors } from '@pawflo/theme';
-import { api } from '@/lib/apiClient';
+import { api, ApiError, registerAuthFailureHandler } from '@/lib/apiClient';
 import { tokenStorage } from '@/lib/secureStorage';
 import { useAuthStore } from '@/stores/authStore';
 
 SplashScreen.preventAutoHideAsync();
 
+// When refresh token is also expired, clear Zustand state so the route guard redirects to login
+registerAuthFailureHandler(() => {
+  useAuthStore.getState().clearAuth();
+});
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 2,
+      // Never retry 401 — token refresh is handled inside apiClient
+      retry: (failureCount, error) => {
+        if (error instanceof ApiError && error.status === 401) return false;
+        return failureCount < 2;
+      },
       staleTime: 1000 * 60 * 5,
     },
   },

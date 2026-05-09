@@ -25,16 +25,57 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+// Registered by _layout.tsx — called when refresh fails so the app can clear auth state
+let _onAuthFailure: (() => void) | null = null;
+export function registerAuthFailureHandler(fn: () => void) {
+  _onAuthFailure = fn;
+}
+
+// Serialises concurrent 401s into a single refresh call
+let _refreshPromise: Promise<void> | null = null;
+
+async function fetchWithAuth(path: string, options: RequestInit, token: string | null): Promise<Response> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
-
-  const token = await tokenStorage.getAccessToken();
   if (token) headers['Authorization'] = `Bearer ${token}`;
+  return fetch(`${API_URL}${path}`, { ...options, headers });
+}
 
-  const res = await fetch(`${API_URL}${path}`, { ...options, headers });
+async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
+  const token = await tokenStorage.getAccessToken();
+  let res = await fetchWithAuth(path, options, token);
+
+  if (res.status === 401) {
+    // Avoid parallel refresh calls — all 401s share the same promise
+    if (!_refreshPromise) {
+      _refreshPromise = (async () => {
+        const refreshToken = await tokenStorage.getRefreshToken();
+        if (!refreshToken) throw new Error('no_refresh_token');
+
+        const refreshRes = await fetchWithAuth(
+          '/api/auth/refresh',
+          { method: 'POST', body: JSON.stringify({ refreshToken }) },
+          null,
+        );
+        if (!refreshRes.ok) throw new Error('refresh_failed');
+
+        const data = (await refreshRes.json()) as { accessToken: string; refreshToken: string };
+        await tokenStorage.setTokens(data.accessToken, data.refreshToken);
+      })().finally(() => { _refreshPromise = null; });
+    }
+
+    try {
+      await _refreshPromise;
+      const newToken = await tokenStorage.getAccessToken();
+      res = await fetchWithAuth(path, options, newToken);
+    } catch {
+      await tokenStorage.clearTokens();
+      _onAuthFailure?.();
+      throw new ApiError(401, 'Sesja wygasła. Zaloguj się ponownie.');
+    }
+  }
 
   if (res.status === 204) return undefined as T;
 

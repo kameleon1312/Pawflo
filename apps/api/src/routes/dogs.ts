@@ -1,7 +1,17 @@
 import type { FastifyInstance } from 'fastify';
+import { z } from 'zod';
 import { CreateDogSchema, UpdateDogSchema } from '@pawflo/validation';
 import { requireAuth } from '../middleware/requireAuth';
 import { logger } from '../lib/logger';
+
+const PhotoBody = z.object({
+  url: z
+    .string()
+    .url()
+    .max(2048)
+    .refine((u) => u.startsWith('https://'), { message: 'Photo URL must use HTTPS' }),
+  order: z.number().int().min(0).max(100).default(0),
+});
 
 export async function dogRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireAuth);
@@ -93,11 +103,13 @@ export async function dogRoutes(app: FastifyInstance): Promise<void> {
   // POST /api/dogs/:id/photos — store a photo URL (S3/R2 upload handled client-side in production)
   app.post('/:id/photos', async (req, reply) => {
     const { id } = req.params as { id: string };
-    const { url, order = 0 } = req.body as { url?: string; order?: number };
 
-    if (!url || typeof url !== 'string') {
-      return reply.status(422).send({ error: 'Brakuje pola url.' });
+    const parsed = PhotoBody.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(422).send({ error: 'Nieprawidłowy URL zdjęcia.', details: parsed.error.flatten() });
     }
+
+    const { url, order } = parsed.data;
 
     const existing = await app.prisma.dog.findFirst({
       where: { id, ownerId: req.userId!, deletedAt: null },

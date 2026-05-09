@@ -78,32 +78,32 @@ export function SwipeCard({ dog, onSwipe }: Props) {
   const ageLabel = dog.birthDate ? formatAge(dog.birthDate) : null;
 
   return (
-    <View style={styles.wrapper}>
-      <Animated.View
-        style={[
-          styles.card,
-          { transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }] },
-        ]}
-        {...panResponder.panHandlers}
-      >
-        {/* Photo */}
-        {photo ? (
-          <Image source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
-        ) : (
-          <View style={styles.photoPlaceholder}>
-            <Text style={styles.photoPlaceholderText}>🐾</Text>
-          </View>
-        )}
+    <Animated.View
+      style={[
+        styles.card,
+        { transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }] },
+      ]}
+      {...panResponder.panHandlers}
+    >
+      {/* Photo */}
+      {photo ? (
+        <Image source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
+      ) : (
+        <View style={styles.photoPlaceholder}>
+          <Text style={styles.photoPlaceholderText}>🐾</Text>
+        </View>
+      )}
 
-        {/* LIKE / PASS badge overlays */}
-        <Animated.View style={[styles.badge, styles.likeBadge, { opacity: likeOpacity }]}>
-          <Text style={styles.likeText}>LUBIĘ</Text>
-        </Animated.View>
-        <Animated.View style={[styles.badge, styles.passBadge, { opacity: passOpacity }]}>
-          <Text style={styles.passText}>PASS</Text>
-        </Animated.View>
+      {/* LIKE / PASS badge overlays */}
+      <Animated.View style={[styles.badge, styles.likeBadge, { opacity: likeOpacity }]}>
+        <Text style={styles.likeText}>LUBIĘ</Text>
+      </Animated.View>
+      <Animated.View style={[styles.badge, styles.passBadge, { opacity: passOpacity }]}>
+        <Text style={styles.passText}>PASS</Text>
+      </Animated.View>
 
-        {/* Info gradient overlay */}
+      {/* Info + actions overlay at the bottom */}
+      <View style={styles.bottomOverlay}>
         <View style={styles.info}>
           <Text style={styles.dogName} numberOfLines={1}>
             {dog.name}{ageLabel ? `, ${ageLabel}` : ''}
@@ -123,30 +123,28 @@ export function SwipeCard({ dog, onSwipe }: Props) {
             <Text style={styles.bio} numberOfLines={2}>{dog.bio}</Text>
           ) : null}
         </View>
-      </Animated.View>
 
-      {/* Action buttons */}
-      <View style={styles.actions}>
-        <Pressable
-          style={[styles.btn, styles.btnPass]}
-          onPress={() => flyOut('PASS')}
-          accessibilityRole="button"
-          accessibilityLabel="Pomiń psa"
-          hitSlop={8}
-        >
-          <Text style={styles.btnPassText}>✕</Text>
-        </Pressable>
-        <Pressable
-          style={[styles.btn, styles.btnLike]}
-          onPress={() => flyOut('LIKE')}
-          accessibilityRole="button"
-          accessibilityLabel="Lubię psa"
-          hitSlop={8}
-        >
-          <Text style={styles.btnLikeText}>♥</Text>
-        </Pressable>
+        {/* Action buttons */}
+        <View style={styles.actions}>
+          <Pressable
+            style={[styles.btn, styles.btnPass]}
+            onPress={() => flyOut('PASS')}
+            accessibilityRole="button"
+            accessibilityLabel="Pomiń psa"
+          >
+            <Text style={styles.btnPassText}>✕</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.btn, styles.btnLike]}
+            onPress={() => flyOut('LIKE')}
+            accessibilityRole="button"
+            accessibilityLabel="Lubię psa"
+          >
+            <Text style={styles.btnLikeText}>♥</Text>
+          </Pressable>
+        </View>
       </View>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -160,15 +158,10 @@ function formatAge(birthDate: string): string {
   return `${years} ${years === 1 ? 'rok' : years < 5 ? 'lata' : 'lat'}`;
 }
 
-const CARD_HEIGHT = SCREEN_W * 1.28;
-
 const styles = StyleSheet.create({
-  wrapper: { alignItems: 'center', gap: 20 },
-
   card: {
-    width: SCREEN_W - 32,
-    height: CARD_HEIGHT,
-    borderRadius: 20,
+    width: SCREEN_W,
+    flex: 1,
     overflow: 'hidden',
     backgroundColor: Colors.inkSoft,
     elevation: 6,
@@ -211,15 +204,17 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  // Info overlay
-  info: {
+  // Bottom overlay: info text + action buttons
+  bottomOverlay: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
+    backgroundColor: 'rgba(27,20,17,0.78)',
+  },
+  info: {
     padding: 20,
-    paddingBottom: 24,
-    backgroundColor: 'rgba(27,20,17,0.72)',
+    paddingBottom: 12,
   },
   dogName: {
     fontFamily: 'Fraunces-Bold',
@@ -249,15 +244,22 @@ const styles = StyleSheet.create({
     color: Colors.bone,
     lineHeight: FontSize.caption * 1.5,
     opacity: 0.8,
-    marginTop: 4,
+    marginTop: 2,
   },
 
-  // Action buttons
-  actions: { flexDirection: 'row', gap: 32 },
+  // Action buttons bar
+  actions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 32,
+    paddingVertical: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(229,219,197,0.15)',
+  },
   btn: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
     elevation: 4,
