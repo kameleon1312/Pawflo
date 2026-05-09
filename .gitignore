@@ -41,6 +41,9 @@ coverage/
 *.sqlite
 apps/api/prisma/dev.db*
 
+# Local file uploads (dev only — use S3/R2 in production)
+apps/api/uploads/
+
 # Secrets
 *.pem
 *.key
