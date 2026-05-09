@@ -14,6 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
+import { useRouter } from 'expo-router';
+import type { Href } from 'expo-router';
 import { useAuthStore } from '@/stores/authStore';
 import { useDogs } from '@/hooks/useDogs';
 import { useLogout, useDeleteAccount, useExportData } from '@/hooks/useAuth';
@@ -30,6 +32,7 @@ const SIZE_LABEL: Record<string, string> = { SMALL: 'Mały', MEDIUM: 'Średni', 
 const ACTIVITY_LABEL: Record<string, string> = { CALM: 'Spokojny', MODERATE: 'Umiarkowany', ACTIVE: 'Bardzo aktywny' };
 
 export default function ProfileScreen() {
+  const router  = useRouter();
   const user    = useAuthStore((s) => s.user);
   const logout  = useLogout();
   const dogs    = useDogs();
@@ -116,7 +119,12 @@ export default function ProfileScreen() {
           <ActivityIndicator color={Colors.coral} style={{ marginTop: 24 }} />
         ) : dog ? (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Twój pies</Text>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Twój pies</Text>
+              <Pressable onPress={() => router.push('/dog-edit' as Href)} hitSlop={8}>
+                <Ionicons name="pencil" size={16} color={Colors.coral} />
+              </Pressable>
+            </View>
 
             <Row label="Imię"       value={dog.name} />
             {dog.breed  ? <Row label="Rasa"  value={dog.breed} /> : null}

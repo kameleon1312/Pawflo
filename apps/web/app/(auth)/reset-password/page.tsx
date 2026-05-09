@@ -1,10 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
+// useSearchParams() requires Suspense in Next.js 14 App Router static pre-rendering
 export default function ResetPasswordPage() {
+  return (
+    <PageShell>
+      <Suspense fallback={<LoadingState />}>
+        <ResetPasswordForm />
+      </Suspense>
+    </PageShell>
+  );
+}
+
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token') ?? '';
 
@@ -15,13 +26,11 @@ export default function ResetPasswordPage() {
 
   if (!token) {
     return (
-      <PageShell>
-        <Notice
-          ok={false}
-          title="Nieprawidłowy link"
-          body="Brak tokenu w adresie URL. Sprawdź link z e-maila lub poproś o nowy reset hasła."
-        />
-      </PageShell>
+      <Notice
+        ok={false}
+        title="Nieprawidłowy link"
+        body="Brak tokenu w adresie URL. Sprawdź link z e-maila lub poproś o nowy reset hasła."
+      />
     );
   }
 
@@ -58,70 +67,77 @@ export default function ResetPasswordPage() {
 
   if (status === 'success') {
     return (
-      <PageShell>
-        <Notice
-          ok={true}
-          title="Hasło zmienione!"
-          body="Możesz teraz zalogować się do aplikacji PawFlo za pomocą nowego hasła."
-        />
-      </PageShell>
+      <Notice
+        ok={true}
+        title="Hasło zmienione!"
+        body="Możesz teraz zalogować się do aplikacji PawFlo za pomocą nowego hasła."
+      />
     );
   }
 
   return (
-    <PageShell>
-      <div className="max-w-md w-full space-y-6">
-        <h1
-          className="font-serif text-3xl font-bold text-center"
-          style={{ color: '#1B1411', fontVariationSettings: '"opsz" 144' }}
+    <div className="max-w-md w-full space-y-6">
+      <h1
+        className="font-serif text-3xl font-bold text-center"
+        style={{ color: '#1B1411', fontVariationSettings: '"opsz" 144' }}
+      >
+        Nowe hasło
+      </h1>
+      <p className="text-center text-sm" style={{ color: '#2A1F19' }}>
+        Ustaw nowe hasło dla swojego konta PawFlo.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Field
+          label="Nowe hasło"
+          type="password"
+          value={password}
+          onChange={setPassword}
+          placeholder="Minimum 12 znaków"
+          autoComplete="new-password"
+        />
+        <Field
+          label="Powtórz hasło"
+          type="password"
+          value={passwordConfirm}
+          onChange={setPasswordConfirm}
+          placeholder="Powtórz nowe hasło"
+          autoComplete="new-password"
+        />
+
+        {(status === 'error' || errorMsg) && (
+          <p className="text-sm text-red-600 text-center" role="alert">
+            {errorMsg}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={status === 'loading'}
+          className="w-full py-3 rounded-xl font-medium text-sm transition-opacity hover:opacity-80 disabled:opacity-50"
+          style={{ backgroundColor: '#F08A8A', color: '#FAF4E9' }}
         >
-          Nowe hasło
-        </h1>
-        <p className="text-center text-sm" style={{ color: '#2A1F19' }}>
-          Ustaw nowe hasło dla swojego konta PawFlo.
-        </p>
+          {status === 'loading' ? 'Zapisywanie…' : 'Zmień hasło'}
+        </button>
+      </form>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Field
-            label="Nowe hasło"
-            type="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="Minimum 12 znaków"
-            autoComplete="new-password"
-          />
-          <Field
-            label="Powtórz hasło"
-            type="password"
-            value={passwordConfirm}
-            onChange={setPasswordConfirm}
-            placeholder="Powtórz nowe hasło"
-            autoComplete="new-password"
-          />
+      <p className="text-center text-sm" style={{ color: '#2A1F19' }}>
+        <Link href="/" className="underline hover:opacity-70">
+          Wróć do strony głównej
+        </Link>
+      </p>
+    </div>
+  );
+}
 
-          {(status === 'error' || errorMsg) && (
-            <p className="text-sm text-red-600 text-center" role="alert">
-              {errorMsg}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={status === 'loading'}
-            className="w-full py-3 rounded-xl font-medium text-sm transition-opacity hover:opacity-80 disabled:opacity-50"
-            style={{ backgroundColor: '#F08A8A', color: '#FAF4E9' }}
-          >
-            {status === 'loading' ? 'Zapisywanie…' : 'Zmień hasło'}
-          </button>
-        </form>
-
-        <p className="text-center text-sm" style={{ color: '#2A1F19' }}>
-          <Link href="/" className="underline hover:opacity-70">
-            Wróć do strony głównej
-          </Link>
-        </p>
-      </div>
-    </PageShell>
+function LoadingState() {
+  return (
+    <div className="max-w-md w-full flex items-center justify-center py-16">
+      <div
+        className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin"
+        style={{ borderColor: '#F08A8A', borderTopColor: 'transparent' }}
+      />
+    </div>
   );
 }
 

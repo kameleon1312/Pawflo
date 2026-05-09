@@ -1,7 +1,11 @@
 import './lib/sentry'; // must be first — instruments Node.js before other modules load
+import path from 'path';
 import Fastify from 'fastify';
+import multipart from '@fastify/multipart';
+import staticFiles from '@fastify/static';
 import * as Sentry from '@sentry/node';
 import { logger, pinoOptions } from './lib/logger';
+import { UPLOADS_DIR } from './lib/storage';
 import { registerSecurity } from './plugins/security';
 import { prismaPlugin } from './plugins/prisma';
 import { authRoutes } from './routes/auth';
@@ -50,6 +54,11 @@ function validateEnv(): void {
 async function bootstrap(): Promise<void> {
   validateEnv();
   await registerSecurity(app);
+
+  await app.register(multipart, { limits: { fileSize: 5 * 1024 * 1024, files: 1 } });
+
+  // Serve locally-uploaded files in dev (when S3 is not configured).
+  await app.register(staticFiles, { root: UPLOADS_DIR, prefix: '/uploads/' });
   await app.register(prismaPlugin);
 
   await app.register(authRoutes, { prefix: '/api/auth' });

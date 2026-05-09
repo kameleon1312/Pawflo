@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
-  Image,
   PanResponder,
   Pressable,
   StyleSheet,
   Text,
   View,
 } from 'react-native';
+import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import type { CandidateDog } from '@pawflo/types';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
@@ -106,7 +106,7 @@ export function SwipeCard({ dog, onSwipe }: Props) {
     >
       {/* Photo */}
       {photo ? (
-        <Image source={{ uri: photo.url }} style={styles.photo} resizeMode="cover" />
+        <Image source={{ uri: photo.url }} style={styles.photo} contentFit="cover" />
       ) : (
         <View style={styles.photoPlaceholder}>
           <Text style={styles.photoPlaceholderText}>🐾</Text>

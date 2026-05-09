@@ -4,6 +4,7 @@ import { CreateDogSchema, UpdateDogSchema } from '@pawflo/validation';
 import { encrypt, decrypt } from '@pawflo/utils';
 import { requireAuth } from '../middleware/requireAuth';
 import { logger } from '../lib/logger';
+import { saveFile, isAllowedMime } from '../lib/storage';
 
 type DogRow = {
   chipNumberEncrypted: string | null;
@@ -111,6 +112,34 @@ export async function dogRoutes(app: FastifyInstance): Promise<void> {
 
     logger.info({ event: 'dog.delete', dogId: id, userId: req.userId }, 'Dog soft-deleted');
     return reply.status(204).send();
+  });
+
+  // POST /api/dogs/:id/photos/upload — multipart file upload (dev: local disk, prod: S3/R2)
+  app.post('/:id/photos/upload', async (req, reply) => {
+    const { id } = req.params as { id: string };
+
+    const existing = await app.prisma.dog.findFirst({
+      where: { id, ownerId: req.userId!, deletedAt: null },
+    });
+    if (!existing) return reply.status(404).send({ error: 'Pies nie znaleziony.' });
+
+    const data = await req.file();
+    if (!data) return reply.status(400).send({ error: 'Brak pliku.' });
+
+    if (!isAllowedMime(data.mimetype)) {
+      return reply.status(422).send({ error: 'Dozwolone formaty: JPEG, PNG, WebP.' });
+    }
+
+    const buffer = await data.toBuffer();
+    const url = await saveFile(buffer, data.mimetype);
+
+    const photoCount = await app.prisma.photo.count({ where: { dogId: id } });
+    const photo = await app.prisma.photo.create({
+      data: { dogId: id, url, order: photoCount },
+    });
+
+    logger.info({ event: 'dog.photo.upload', dogId: id, userId: req.userId }, 'Photo uploaded');
+    return reply.status(201).send({ photo });
   });
 
   // POST /api/dogs/:id/photos — store a photo URL (S3/R2 upload handled client-side in production)

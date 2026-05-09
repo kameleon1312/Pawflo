@@ -1,22 +1,64 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View, Alert } from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import type { Href } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors, Fonts, FontSize } from '@pawflo/theme';
+import * as ImagePicker from 'expo-image-picker';
+import { Colors, Fonts, FontSize, Spacing } from '@pawflo/theme';
 import { strings } from '@/i18n/strings.pl';
+import { useDogs, useUploadPhoto, useDeletePhoto } from '@/hooks/useDogs';
 
 const s = strings.onboarding.step2;
+const MAX_PHOTOS = 6;
 
-// expo-image-picker is not installed — photo picking requires user approval (>50KB dependency).
-// This screen serves as a placeholder that lets users skip and complete onboarding.
 export default function Step2PhotosScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
 
+  const { data: dogs } = useDogs();
+  const dog = dogs?.[0];
+
+  const { mutate: uploadPhoto, isPending: uploading } = useUploadPhoto();
+  const { mutate: deletePhoto } = useDeletePhoto();
+
+  async function handlePickPhoto() {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('', s.permissionError);
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 5],
+      quality: 0.85,
+    });
+
+    if (result.canceled || !dog) return;
+
+    const asset = result.assets[0];
+    const mimeType = asset.mimeType ?? 'image/jpeg';
+    const fileName = asset.fileName ?? `photo_${Date.now()}.jpg`;
+
+    uploadPhoto(
+      { dogId: dog.id, uri: asset.uri, mimeType, fileName },
+      { onError: () => Alert.alert('', s.uploadError) },
+    );
+  }
+
+  function handleDelete(photoId: string) {
+    if (!dog) return;
+    deletePhoto({ dogId: dog.id, photoId });
+  }
+
   function handleNext() {
     router.push('/(onboarding)/step-3-traits' as Href);
   }
+
+  const photos = dog?.photos ?? [];
+  const canAddMore = photos.length < MAX_PHOTOS;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -27,9 +69,39 @@ export default function Step2PhotosScreen() {
           <Text style={styles.subtitle}>{s.subtitle}</Text>
         </View>
 
-        <View style={styles.placeholder}>
-          <Ionicons name="camera-outline" size={56} color={Colors.inkSoft} />
-          <Text style={styles.placeholderText}>{s.comingSoon}</Text>
+        <View style={styles.grid}>
+          {photos.map((photo) => (
+            <View key={photo.id} style={styles.photoCell}>
+              <Image source={{ uri: photo.url }} style={styles.photo} contentFit="cover" />
+              <Pressable
+                style={styles.deleteBtn}
+                onPress={() => handleDelete(photo.id)}
+                accessibilityLabel={s.deletePhoto}
+                hitSlop={8}
+              >
+                <Ionicons name="close-circle" size={22} color={Colors.cream} />
+              </Pressable>
+            </View>
+          ))}
+
+          {canAddMore && (
+            <Pressable
+              style={styles.addCell}
+              onPress={handlePickPhoto}
+              disabled={uploading}
+              accessibilityRole="button"
+              accessibilityLabel={s.addPhoto}
+            >
+              {uploading ? (
+                <ActivityIndicator color={Colors.coralSoft} />
+              ) : (
+                <>
+                  <Ionicons name="add" size={32} color={Colors.coralSoft} />
+                  <Text style={styles.addText}>{s.addPhoto}</Text>
+                </>
+              )}
+            </Pressable>
+          )}
         </View>
 
         <View style={[styles.footer, { paddingBottom: insets.bottom + 8 }]}>
@@ -38,7 +110,7 @@ export default function Step2PhotosScreen() {
             onPress={handleNext}
             accessibilityRole="button"
           >
-            <Text style={styles.ctaText}>{s.skipCta}</Text>
+            <Text style={styles.ctaText}>{photos.length > 0 ? s.cta : s.skipCta}</Text>
           </Pressable>
         </View>
       </View>
@@ -46,11 +118,13 @@ export default function Step2PhotosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  safe:  { flex: 1, backgroundColor: Colors.ink },
-  root:  { flex: 1, paddingHorizontal: 24 },
+const CELL_SIZE = 104;
 
-  header: { paddingTop: 16, marginBottom: 40 },
+const styles = StyleSheet.create({
+  safe: { flex: 1, backgroundColor: Colors.ink },
+  root: { flex: 1, paddingHorizontal: 24 },
+
+  header: { paddingTop: 16, marginBottom: 32 },
   step: {
     fontFamily: Fonts.sans,
     fontSize: FontSize.micro,
@@ -74,19 +148,44 @@ const styles = StyleSheet.create({
     lineHeight: FontSize.bodySm * 1.6,
   },
 
-  placeholder: {
+  grid: {
     flex: 1,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.sm,
+    alignContent: 'flex-start',
+  },
+  photoCell: {
+    width: CELL_SIZE,
+    height: CELL_SIZE,
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  photo: {
+    width: CELL_SIZE,
+    height: CELL_SIZE,
+  },
+  deleteBtn: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+  },
+  addCell: {
+    width: CELL_SIZE,
+    height: CELL_SIZE,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: Colors.inkSoft,
+    borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
+    gap: 4,
   },
-  placeholderText: {
+  addText: {
     fontFamily: Fonts.sans,
-    fontSize: FontSize.bodySm,
-    color: Colors.inkSoft,
+    fontSize: FontSize.caption,
+    color: Colors.coralSoft,
     textAlign: 'center',
-    maxWidth: 240,
-    lineHeight: FontSize.bodySm * 1.6,
   },
 
   footer: { paddingTop: 12, backgroundColor: Colors.ink },

@@ -46,6 +46,39 @@ export function useUpdateDog() {
   });
 }
 
+export function useUploadPhoto() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      dogId,
+      uri,
+      mimeType,
+      fileName,
+    }: {
+      dogId: string;
+      uri: string;
+      mimeType: string;
+      fileName: string;
+    }) => api.dogs.uploadPhoto(dogId, uri, mimeType, fileName),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: DOGS_KEY });
+    },
+  });
+}
+
+export function useDeletePhoto() {
+  const qc = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ dogId, photoId }: { dogId: string; photoId: string }) =>
+      api.dogs.removePhoto(dogId, photoId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: DOGS_KEY });
+    },
+  });
+}
+
 export function useDeleteDog() {
   const qc = useQueryClient();
   const setHasDog = useAuthStore((s) => s.setHasDog);

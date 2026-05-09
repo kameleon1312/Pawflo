@@ -173,6 +173,11 @@ export const strings = {
       skipCta: 'Pomiń na razie',
       cta: 'Dalej',
       comingSoon: 'Dodawanie zdjęć będzie dostępne wkrótce.',
+      addPhoto: 'Dodaj zdjęcie',
+      uploading: 'Przesyłanie…',
+      uploadError: 'Nie udało się przesłać zdjęcia.',
+      permissionError: 'Brak dostępu do galerii. Włącz uprawnienia w ustawieniach.',
+      deletePhoto: 'Usuń',
     },
     step3: {
       title: 'Charakter\ni aktywność',

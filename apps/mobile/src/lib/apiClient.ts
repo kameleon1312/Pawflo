@@ -43,6 +43,23 @@ async function fetchWithAuth(path: string, options: RequestInit, token: string |
   return fetch(`${API_URL}${path}`, { ...options, headers });
 }
 
+// Multipart upload — does NOT inject Content-Type so fetch sets it with the boundary
+async function uploadRequest<T>(path: string, formData: FormData): Promise<T> {
+  const token = await tokenStorage.getAccessToken();
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${API_URL}${path}`, { method: 'POST', headers, body: formData });
+
+  if (res.status === 204) return undefined as T;
+  const body: unknown = await res.json().catch(() => ({ error: 'Nieznany błąd serwera.' }));
+  if (!res.ok) {
+    const msg = (body as Record<string, string>)['error'] ?? 'Nieznany błąd serwera.';
+    throw new ApiError(res.status, msg);
+  }
+  return body as T;
+}
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = await tokenStorage.getAccessToken();
   let res = await fetchWithAuth(path, options, token);
@@ -182,6 +199,15 @@ export const api = {
 
     remove: (id: string) =>
       request<void>(`/api/dogs/${id}`, { method: 'DELETE' }),
+
+    uploadPhoto: (dogId: string, uri: string, mimeType: string, fileName: string) => {
+      const form = new FormData();
+      form.append('file', { uri, type: mimeType, name: fileName } as unknown as Blob);
+      return uploadRequest<{ photo: { id: string; url: string; order: number } }>(
+        `/api/dogs/${dogId}/photos/upload`,
+        form,
+      );
+    },
 
     addPhoto: (dogId: string, url: string, order = 0) =>
       request<{ photo: { id: string; url: string; order: number } }>(
