@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
   },
 
-  photo: { width: '100%', height: '100%', position: 'absolute' },
+  photo: { ...StyleSheet.absoluteFillObject },
 
   dotsRow: {
     position: 'absolute',

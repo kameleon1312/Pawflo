@@ -113,12 +113,19 @@ export default function LoginScreen() {
 
           {/* Footer nav */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>{strings.auth.noAccount} </Text>
-            <Link href="/(auth)/register" asChild>
-              <Pressable accessibilityRole="link">
-                <Text style={styles.footerLink}>{strings.auth.registerCta}</Text>
+            <Link href="/(auth)/forgot-password" asChild>
+              <Pressable accessibilityRole="link" style={styles.forgotRow}>
+                <Text style={styles.footerLink}>{strings.auth.forgotPassword}</Text>
               </Pressable>
             </Link>
+            <View style={styles.registerRow}>
+              <Text style={styles.footerText}>{strings.auth.noAccount} </Text>
+              <Link href="/(auth)/register" asChild>
+                <Pressable accessibilityRole="link">
+                  <Text style={styles.footerLink}>{strings.auth.registerCta}</Text>
+                </Pressable>
+              </Link>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -179,11 +186,18 @@ const styles = StyleSheet.create({
   },
 
   footer: {
+    marginTop: 'auto',
+    paddingTop: Spacing.lg,
+    gap: Spacing.sm,
+    alignItems: 'center',
+  },
+  forgotRow: {
+    alignItems: 'center',
+  },
+  registerRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 'auto',
-    paddingTop: Spacing.lg,
   },
   footerText: {
     fontFamily: Fonts.sans,

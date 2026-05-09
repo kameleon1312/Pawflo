@@ -119,6 +119,12 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ refreshToken }),
       }),
+
+    forgotPassword: (email: string) =>
+      request<{ ok: boolean }>('/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+      }),
   },
 
   users: {
@@ -130,6 +136,15 @@ export const api = {
         method: 'PATCH',
         body: JSON.stringify(data),
       }),
+
+    deleteAccount: (password: string) =>
+      request<void>('/api/users/me', {
+        method: 'DELETE',
+        body: JSON.stringify({ password }),
+      }),
+
+    exportData: () =>
+      request<Record<string, unknown>>('/api/users/me/export'),
   },
 
   dogs: {

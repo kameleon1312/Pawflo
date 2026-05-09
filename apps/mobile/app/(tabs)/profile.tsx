@@ -5,6 +5,7 @@ import {
   Modal,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -15,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
 import { useAuthStore } from '@/stores/authStore';
 import { useDogs } from '@/hooks/useDogs';
-import { useLogout } from '@/hooks/useAuth';
+import { useLogout, useDeleteAccount, useExportData } from '@/hooks/useAuth';
 import { useUpdateProfile } from '@/hooks/useDogs';
 
 const PLAN_LABEL: Record<string, string> = {
@@ -34,9 +35,14 @@ export default function ProfileScreen() {
   const dogs    = useDogs();
   const updateProfile = useUpdateProfile();
 
-  const [editOpen,    setEditOpen]    = useState(false);
-  const [firstName,   setFirstName]   = useState(user?.firstName ?? '');
-  const [lastName,    setLastName]    = useState(user?.lastName ?? '');
+  const deleteAccount = useDeleteAccount();
+  const exportData    = useExportData();
+
+  const [editOpen,       setEditOpen]       = useState(false);
+  const [deleteOpen,     setDeleteOpen]     = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [firstName,      setFirstName]      = useState(user?.firstName ?? '');
+  const [lastName,       setLastName]       = useState(user?.lastName ?? '');
 
   const dog = dogs.data?.[0] ?? null;
 
@@ -49,6 +55,18 @@ export default function ProfileScreen() {
   async function saveProfile() {
     await updateProfile.mutateAsync({ firstName: firstName.trim(), lastName: lastName.trim() });
     setEditOpen(false);
+  }
+
+  async function handleExport() {
+    try {
+      const data = await exportData.mutateAsync();
+      await Share.share({
+        title: 'PawFlo — eksport danych',
+        message: JSON.stringify(data, null, 2),
+      });
+    } catch {
+      Alert.alert('Błąd', 'Nie udało się pobrać danych. Spróbuj ponownie.');
+    }
   }
 
   function confirmLogout() {
@@ -129,7 +147,81 @@ export default function ProfileScreen() {
           <Text style={styles.logoutText}>Wyloguj się</Text>
         </Pressable>
 
+        {/* ── Pobierz dane (RODO) ── */}
+        <Pressable
+          style={({ pressed }) => [styles.exportBtn, pressed && { opacity: 0.7 }, exportData.isPending && { opacity: 0.5 }]}
+          onPress={handleExport}
+          disabled={exportData.isPending}
+        >
+          {exportData.isPending
+            ? <ActivityIndicator size="small" color={Colors.textFaint} />
+            : <Ionicons name="download-outline" size={18} color={Colors.textFaint} />}
+          <Text style={styles.exportText}>Pobierz moje dane</Text>
+        </Pressable>
+
+        {/* ── Usuń konto ── */}
+        <Pressable
+          style={({ pressed }) => [styles.deleteBtn, pressed && { opacity: 0.7 }]}
+          onPress={() => { setDeletePassword(''); setDeleteOpen(true); }}
+        >
+          <Ionicons name="trash-outline" size={18} color={Colors.danger} />
+          <Text style={styles.deleteText}>Usuń konto</Text>
+        </Pressable>
+
       </ScrollView>
+
+      {/* ── Modal usuwania konta ── */}
+      <Modal
+        visible={deleteOpen}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setDeleteOpen(false)}
+      >
+        <SafeAreaView style={styles.modalSafe} edges={['top', 'bottom']}>
+          <View style={styles.modalHeader}>
+            <Pressable onPress={() => setDeleteOpen(false)} hitSlop={8}>
+              <Text style={styles.modalCancel}>Anuluj</Text>
+            </Pressable>
+            <Text style={styles.modalTitle}>Usuń konto</Text>
+            <View style={{ width: 50 }} />
+          </View>
+
+          <View style={styles.modalBody}>
+            <Text style={styles.deleteWarning}>
+              Twoje konto zostanie usunięte bezpowrotnie po 30 dniach. Wszystkie dane, dopasowania i historia zostaną skasowane.
+            </Text>
+
+            <Text style={styles.inputLabel}>Potwierdź hasłem</Text>
+            <TextInput
+              style={styles.input}
+              value={deletePassword}
+              onChangeText={setDeletePassword}
+              placeholder="Twoje hasło"
+              placeholderTextColor={Colors.textFaint}
+              secureTextEntry
+              autoComplete="current-password"
+            />
+
+            {deleteAccount.isError && (
+              <Text style={styles.errorText}>
+                {deleteAccount.error instanceof Error
+                  ? deleteAccount.error.message
+                  : 'Coś poszło nie tak.'}
+              </Text>
+            )}
+
+            <Pressable
+              style={({ pressed }) => [styles.deleteConfirmBtn, pressed && { opacity: 0.8 }, deleteAccount.isPending && { opacity: 0.5 }]}
+              onPress={() => deleteAccount.mutate(deletePassword)}
+              disabled={deleteAccount.isPending || !deletePassword}
+            >
+              {deleteAccount.isPending
+                ? <ActivityIndicator color={Colors.cream} />
+                : <Text style={styles.deleteConfirmText}>Usuń moje konto</Text>}
+            </Pressable>
+          </View>
+        </SafeAreaView>
+      </Modal>
 
       {/* ── Modal edycji profilu ── */}
       <Modal
@@ -318,6 +410,74 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.sans,
     fontSize: FontSize.body,
     color: Colors.coral,
+  },
+
+  exportBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 16,
+    marginTop: 8,
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(229,219,197,0.12)',
+    minHeight: 52,
+    justifyContent: 'center',
+  },
+  exportText: {
+    fontFamily: Fonts.sans,
+    fontSize: FontSize.body,
+    color: Colors.textFaint,
+  },
+
+  deleteBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 16,
+    marginTop: 8,
+    marginBottom: 8,
+    padding: 16,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(220,53,69,0.25)',
+    backgroundColor: 'rgba(220,53,69,0.06)',
+    minHeight: 52,
+    justifyContent: 'center',
+  },
+  deleteText: {
+    fontFamily: Fonts.sans,
+    fontSize: FontSize.body,
+    color: Colors.danger,
+  },
+
+  deleteWarning: {
+    fontFamily: Fonts.sans,
+    fontSize: FontSize.bodySm,
+    color: Colors.bone,
+    lineHeight: FontSize.bodySm * 1.6,
+    marginBottom: 24,
+    padding: 16,
+    backgroundColor: 'rgba(220,53,69,0.08)',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(220,53,69,0.2)',
+  },
+  deleteConfirmBtn: {
+    marginTop: 16,
+    backgroundColor: Colors.danger,
+    borderRadius: 14,
+    paddingVertical: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 52,
+  },
+  deleteConfirmText: {
+    fontFamily: Fonts.sans,
+    fontSize: FontSize.body,
+    color: Colors.cream,
+    fontWeight: '600',
   },
 
   // Modal

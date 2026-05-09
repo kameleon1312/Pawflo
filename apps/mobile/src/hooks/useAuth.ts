@@ -32,6 +32,32 @@ export function useRegister() {
   });
 }
 
+export function useExportData() {
+  return useMutation({
+    mutationFn: () => api.users.exportData(),
+  });
+}
+
+export function useDeleteAccount() {
+  const router = useRouter();
+  const clearAuth = useAuthStore((s) => s.clearAuth);
+
+  return useMutation({
+    mutationFn: (password: string) => api.users.deleteAccount(password),
+    onSuccess: async () => {
+      await tokenStorage.clearTokens();
+      clearAuth();
+      router.replace('/(auth)/login');
+    },
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) => api.auth.forgotPassword(email),
+  });
+}
+
 export function useLogout() {
   const router = useRouter();
   const clearAuth = useAuthStore((s) => s.clearAuth);

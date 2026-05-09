@@ -1,9 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 import rateLimit from '@fastify/rate-limit';
-import { RegisterSchema, LoginSchema, RefreshTokenSchema, VerifyEmailSchema } from '@pawflo/validation';
+import { RegisterSchema, LoginSchema, RefreshTokenSchema, VerifyEmailSchema, ForgotPasswordSchema, ResetPasswordSchema } from '@pawflo/validation';
 import { hashPassword, verifyPassword } from '../lib/crypto';
 import { signAccessToken, signRefreshToken, verifyRefreshToken, hashToken, IP_SALT } from '../lib/jwt';
-import { sendVerificationEmail } from '../lib/email';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../lib/email';
 import { logger } from '../lib/logger';
 import crypto from 'crypto';
 
@@ -184,6 +184,71 @@ export async function authRoutes(app: FastifyInstance): Promise<void> {
     });
 
     logger.info({ event: 'auth.verify_email', userId: user.id }, 'Email verified');
+    return reply.send({ ok: true });
+  });
+
+  // POST /auth/forgot-password
+  app.post('/forgot-password', async (req, reply) => {
+    const parsed = ForgotPasswordSchema.safeParse(req.body);
+    if (!parsed.success) return reply.status(422).send({ error: 'Nieprawidłowe dane.' });
+
+    const { email } = parsed.data;
+    const user = await app.prisma.user.findUnique({ where: { email, deletedAt: null } });
+
+    // Always return ok — never reveal whether email is registered.
+    if (user) {
+      const rawToken = crypto.randomBytes(32).toString('hex');
+      await app.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          resetTokenHash: hashToken(rawToken),
+          resetTokenExp: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+        },
+      });
+      await sendPasswordResetEmail(email, rawToken);
+      logger.info({ event: 'auth.forgot_password', userId: user.id }, 'Password reset email sent');
+    }
+
+    return reply.send({ ok: true });
+  });
+
+  // POST /auth/reset-password
+  app.post('/reset-password', async (req, reply) => {
+    const parsed = ResetPasswordSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(422).send({ error: 'Nieprawidłowe dane.', details: parsed.error.flatten() });
+    }
+
+    const { token, password } = parsed.data;
+    const tokenHash = hashToken(token);
+
+    const user = await app.prisma.user.findFirst({
+      where: { resetTokenHash: tokenHash },
+      select: { id: true, resetTokenExp: true },
+    });
+
+    if (!user || !user.resetTokenExp || user.resetTokenExp < new Date()) {
+      return reply.status(400).send({ error: 'Link do resetu hasła wygasł lub jest nieprawidłowy.' });
+    }
+
+    const passwordHash = await hashPassword(password);
+
+    await app.prisma.$transaction([
+      app.prisma.user.update({
+        where: { id: user.id },
+        data: { passwordHash, resetTokenHash: null, resetTokenExp: null },
+      }),
+      // Revoke all active sessions — new password means fresh login required.
+      app.prisma.refreshToken.updateMany({
+        where: { userId: user.id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+      app.prisma.auditLog.create({
+        data: { userId: user.id, action: 'PASSWORD_CHANGE', ipHash: hashIp(req.ip) },
+      }),
+    ]);
+
+    logger.info({ event: 'auth.reset_password', userId: user.id }, 'Password reset successful');
     return reply.send({ ok: true });
   });
 
