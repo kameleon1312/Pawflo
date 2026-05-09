@@ -1,5 +1,6 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Linking,
   Pressable,
   ScrollView,
@@ -10,87 +11,26 @@ import {
 import MapView, { Marker, type Region } from 'react-native-maps';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as Location from 'expo-location';
+import { useQuery } from '@tanstack/react-query';
 import { Colors, Fonts, FontSize } from '@pawflo/theme';
+import type { Place, PlaceType } from '@pawflo/types';
+import { api } from '@/lib/apiClient';
 import { strings } from '@/i18n/strings.pl';
 
 const s = strings.pawmap;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type PlaceType = 'vet' | 'shop' | 'groomer';
-
-interface Place {
-  id:      string;
-  name:    string;
-  type:    PlaceType;
-  address: string;
-  city:    string;
-  lat:     number;
-  lng:     number;
-  phone?:  string;
-}
-
-// ─── Static place data (Warsaw) ───────────────────────────────────────────────
-
-const PLACES: Place[] = [
-  // Veterinarians
-  { id: 'v1', name: 'Klinika Weterynaryjna Animedo', type: 'vet',
-    address: 'ul. Marszałkowska 45', city: 'Warszawa',
-    lat: 52.2297, lng: 21.0122, phone: '+48221112233' },
-  { id: 'v2', name: 'Przychodnia Weterynaryjna Veti', type: 'vet',
-    address: 'ul. Puławska 100', city: 'Warszawa',
-    lat: 52.2178, lng: 21.0222, phone: '+48224445566' },
-  { id: 'v3', name: 'VetHouse Wola', type: 'vet',
-    address: 'ul. Wolska 32', city: 'Warszawa',
-    lat: 52.2347, lng: 20.9900, phone: '+48227778899' },
-  { id: 'v4', name: 'ZooMed Praga', type: 'vet',
-    address: 'ul. Targowa 15', city: 'Warszawa',
-    lat: 52.2497, lng: 21.0522 },
-  { id: 'v5', name: 'Centrum Weterynaryjne Ursynów', type: 'vet',
-    address: 'al. KEN 68', city: 'Warszawa',
-    lat: 52.1480, lng: 21.0420, phone: '+48223456789' },
-  { id: 'v6', name: 'Klinika PetCare Śródmieście', type: 'vet',
-    address: 'ul. Nowy Świat 72', city: 'Warszawa',
-    lat: 52.2320, lng: 21.0180 },
-
-  // Pet shops
-  { id: 's1', name: 'Zooland Centrum', type: 'shop',
-    address: 'ul. Złota 59', city: 'Warszawa',
-    lat: 52.2297, lng: 21.0012, phone: '+48221234567' },
-  { id: 's2', name: 'Kakadu Pet Shop', type: 'shop',
-    address: 'ul. Nowy Świat 22', city: 'Warszawa',
-    lat: 52.2317, lng: 21.0197 },
-  { id: 's3', name: 'Pets Paradise Mokotów', type: 'shop',
-    address: 'ul. Puławska 55', city: 'Warszawa',
-    lat: 52.2200, lng: 21.0102 },
-  { id: 's4', name: 'ZooKraina Wilanów', type: 'shop',
-    address: 'ul. Klimczaka 1', city: 'Warszawa',
-    lat: 52.1657, lng: 21.0497, phone: '+48229876543' },
-  { id: 's5', name: 'Pupil Sklep Zoologiczny', type: 'shop',
-    address: 'ul. Grochowska 42', city: 'Warszawa',
-    lat: 52.2410, lng: 21.0800 },
-
-  // Groomers
-  { id: 'g1', name: 'Dog Spa Mokotów', type: 'groomer',
-    address: 'ul. Wołoska 18', city: 'Warszawa',
-    lat: 52.2050, lng: 21.0000, phone: '+48500100200' },
-  { id: 'g2', name: 'Piękny Pies Salon', type: 'groomer',
-    address: 'ul. Hoża 30', city: 'Warszawa',
-    lat: 52.2260, lng: 21.0150 },
-  { id: 'g3', name: 'Groomer & Friends Żoliborz', type: 'groomer',
-    address: 'ul. Mickiewicza 25', city: 'Warszawa',
-    lat: 52.2660, lng: 20.9780, phone: '+48600200300' },
-  { id: 'g4', name: 'Psia Elegancja Praga', type: 'groomer',
-    address: 'ul. Kawęczyńska 7', city: 'Warszawa',
-    lat: 52.2530, lng: 21.0600 },
-];
+type PlaceWithDistance = Place & { distanceKm: number };
+type Filter = 'all' | PlaceType;
 
 // ─── Visual config per type ───────────────────────────────────────────────────
 
 const TYPE_CONFIG: Record<PlaceType, { color: string; icon: React.ComponentProps<typeof Ionicons>['name'] }> = {
-  vet:     { color: Colors.coral,     icon: 'medkit' },
-  shop:    { color: Colors.bone,      icon: 'storefront' },
-  groomer: { color: Colors.coralSoft, icon: 'cut' },
+  VET:     { color: Colors.coral,     icon: 'medkit' },
+  SHOP:    { color: Colors.bone,      icon: 'storefront' },
+  GROOMER: { color: Colors.coralSoft, icon: 'cut' },
 };
 
 const WARSAW: Region = {
@@ -102,18 +42,70 @@ const WARSAW: Region = {
 
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
-type Filter = 'all' | PlaceType;
-
 export default function PawMapScreen() {
-  const insets    = useSafeAreaInsets();
-  const mapRef    = useRef<MapView>(null);
+  const insets = useSafeAreaInsets();
+  const mapRef = useRef<MapView>(null);
 
   const [filter,   setFilter]   = useState<Filter>('all');
-  const [selected, setSelected] = useState<Place | null>(null);
+  const [selected, setSelected] = useState<PlaceWithDistance | null>(null);
+  const [coords,   setCoords]   = useState<{ lat: number; lng: number } | null>(null);
+  const [gpsNote,  setGpsNote]  = useState<string>(s.locationLoading);
 
-  const visible = filter === 'all' ? PLACES : PLACES.filter((p) => p.type === filter);
+  // Request location permission and get current position on mount
+  useEffect(() => {
+    let cancelled = false;
 
-  function handleMarkerPress(place: Place) {
+    (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        if (!cancelled) {
+          setGpsNote(s.locationDenied);
+          setCoords({ lat: WARSAW.latitude, lng: WARSAW.longitude });
+        }
+        return;
+      }
+
+      const pos = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      if (!cancelled) {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGpsNote(s.locationNote);
+        mapRef.current?.animateToRegion(
+          {
+            latitude:      pos.coords.latitude,
+            longitude:     pos.coords.longitude,
+            latitudeDelta:  0.12,
+            longitudeDelta: 0.12,
+          },
+          600,
+        );
+      }
+    })().catch(() => {
+      if (!cancelled) {
+        setGpsNote(s.locationFallback);
+        setCoords({ lat: WARSAW.latitude, lng: WARSAW.longitude });
+      }
+    });
+
+    return () => { cancelled = true; };
+  }, []);
+
+  // Fetch places once we have coordinates
+  const { data, isLoading } = useQuery({
+    queryKey: ['places', coords?.lat, coords?.lng, filter],
+    queryFn: () =>
+      api.places.list({
+        lat:    coords!.lat,
+        lng:    coords!.lng,
+        radius: 15,
+        type:   filter !== 'all' ? filter : undefined,
+      }),
+    enabled: coords !== null,
+    staleTime: 5 * 60 * 1000, // 5 min — places don't change often
+  });
+
+  const places = data?.places ?? [];
+
+  function handleMarkerPress(place: PlaceWithDistance) {
     setSelected(place);
     mapRef.current?.animateToRegion(
       { latitude: place.lat, longitude: place.lng, latitudeDelta: 0.02, longitudeDelta: 0.02 },
@@ -131,9 +123,9 @@ export default function PawMapScreen() {
 
   const FILTERS: { key: Filter; label: string }[] = [
     { key: 'all',     label: s.filterAll },
-    { key: 'vet',     label: s.filterVet },
-    { key: 'shop',    label: s.filterShop },
-    { key: 'groomer', label: s.filterGroomer },
+    { key: 'VET',     label: s.filterVet },
+    { key: 'SHOP',    label: s.filterShop },
+    { key: 'GROOMER', label: s.filterGroomer },
   ];
 
   return (
@@ -144,11 +136,11 @@ export default function PawMapScreen() {
         style={styles.map}
         initialRegion={WARSAW}
         onPress={handleMapPress}
-        showsUserLocation={false}
+        showsUserLocation
         showsMyLocationButton={false}
         showsCompass={false}
       >
-        {visible.map((place) => (
+        {places.map((place) => (
           <Marker
             key={place.id}
             coordinate={{ latitude: place.lat, longitude: place.lng }}
@@ -171,7 +163,7 @@ export default function PawMapScreen() {
               <Pressable
                 key={f.key}
                 style={[styles.filterPill, filter === f.key && styles.filterPillActive]}
-                onPress={() => setFilter(f.key)}
+                onPress={() => { setFilter(f.key); setSelected(null); }}
                 accessibilityRole="button"
               >
                 <Text style={[styles.filterText, filter === f.key && styles.filterTextActive]}>
@@ -185,13 +177,20 @@ export default function PawMapScreen() {
 
       {/* Legend */}
       <View style={[styles.legend, { top: insets.top + 100 }]} pointerEvents="none">
-        {(['vet', 'shop', 'groomer'] as PlaceType[]).map((type) => (
+        {(['VET', 'SHOP', 'GROOMER'] as PlaceType[]).map((type) => (
           <View key={type} style={styles.legendItem}>
             <View style={[styles.legendDot, { backgroundColor: TYPE_CONFIG[type].color }]} />
             <Text style={styles.legendText}>{s.types[type]}</Text>
           </View>
         ))}
       </View>
+
+      {/* Loading overlay while fetching places */}
+      {isLoading && (
+        <View style={[styles.loadingBadge, { top: insets.top + 100, left: 16 }]} pointerEvents="none">
+          <ActivityIndicator size="small" color={Colors.coral} />
+        </View>
+      )}
 
       {/* Selected place info card */}
       {selected && (
@@ -221,6 +220,11 @@ export default function PawMapScreen() {
                 {s.types[selected.type]}
               </Text>
             </View>
+            <Text style={styles.distanceText}>
+              {selected.distanceKm < 1
+                ? `${Math.round(selected.distanceKm * 1000)} m`
+                : `${selected.distanceKm.toFixed(1)} km`}
+            </Text>
           </View>
 
           {selected.phone ? (
@@ -241,11 +245,11 @@ export default function PawMapScreen() {
         </View>
       )}
 
-      {/* GPS note — bottom left */}
+      {/* GPS / status note — bottom left */}
       {!selected && (
         <View style={[styles.gpsNote, { bottom: insets.bottom + 12 }]} pointerEvents="none">
           <Ionicons name="location-outline" size={12} color={Colors.textFaint} />
-          <Text style={styles.gpsNoteText}>{s.locationNote}</Text>
+          <Text style={styles.gpsNoteText}>{gpsNote}</Text>
         </View>
       )}
     </View>
@@ -308,6 +312,14 @@ const styles = StyleSheet.create({
   legendDot:  { width: 8, height: 8, borderRadius: 4 },
   legendText: { fontFamily: Fonts.sans, fontSize: FontSize.micro, color: Colors.bone },
 
+  // Loading badge
+  loadingBadge: {
+    position: 'absolute',
+    backgroundColor: 'rgba(27,20,17,0.85)',
+    borderRadius: 10,
+    padding: 10,
+  },
+
   // Place info card
   infoCard: {
     position: 'absolute',
@@ -339,7 +351,7 @@ const styles = StyleSheet.create({
   infoAddress: { fontFamily: Fonts.sans, fontSize: FontSize.caption, color: Colors.textFaint },
   closeBtn:    { padding: 4 },
 
-  infoMeta: { flexDirection: 'row', marginTop: 10, marginBottom: 12 },
+  infoMeta: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 12, gap: 8 },
   typeBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -347,6 +359,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.inkSoft,
   },
   typeBadgeText: { fontFamily: Fonts.sans, fontSize: FontSize.caption },
+  distanceText:  { fontFamily: Fonts.sans, fontSize: FontSize.caption, color: Colors.textFaint },
 
   callBtn: {
     flexDirection: 'row',

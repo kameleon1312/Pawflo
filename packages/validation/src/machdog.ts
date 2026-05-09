@@ -6,5 +6,5 @@ export const SwipeSchema = z.object({
 });
 
 export const SendMessageSchema = z.object({
-  text: z.string().min(1).max(2000).trim(),
+  text: z.string().trim().min(1).max(2000),
 });

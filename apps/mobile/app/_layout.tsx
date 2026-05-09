@@ -1,8 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import type { Href } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Notifications from 'expo-notifications';
+import * as LocalAuthentication from 'expo-local-authentication';
 import { useFonts } from 'expo-font';
 import {
   Fraunces_500Medium,
@@ -14,8 +17,15 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Colors } from '@pawflo/theme';
 import { api, ApiError, registerAuthFailureHandler } from '@/lib/apiClient';
-import { tokenStorage } from '@/lib/secureStorage';
+import { tokenStorage, biometricStorage } from '@/lib/secureStorage';
+import { configureNotificationHandler, registerForPushNotifications } from '@/lib/pushNotifications';
+import type { NotificationData } from '@/lib/pushNotifications';
 import { useAuthStore } from '@/stores/authStore';
+
+// Set foreground notification presentation before any component mounts
+if (Platform.OS !== 'web') {
+  configureNotificationHandler();
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -64,8 +74,43 @@ function useProtectedRoute() {
   }, [isAuthenticated, hasDog, isLoading, segments]);
 }
 
+function useNotificationTapHandler() {
+  const router = useRouter();
+  const responseListener = useRef<Notifications.EventSubscription | null>(null);
+  // Hook must be called unconditionally — platform check goes inside the effects
+  const lastResponse = Notifications.useLastNotificationResponse();
+
+  function navigateFromNotification(data: NotificationData) {
+    if (data.type === 'MESSAGE' && data.matchId) {
+      router.push(`/(tabs)/matches/${data.matchId}` as Href);
+    } else if (data.type === 'MATCH' || data.type === 'MESSAGE') {
+      router.push('/(tabs)/matches' as Href);
+    }
+  }
+
+  // Notifications tapped while app is in foreground or background
+  useEffect(() => {
+    if (Platform.OS === 'web') return;
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data as NotificationData;
+      navigateFromNotification(data);
+    });
+
+    return () => responseListener.current?.remove();
+  }, []);
+
+  // Notification tapped when app was killed — captured on startup via lastResponse
+  useEffect(() => {
+    if (!lastResponse || Platform.OS === 'web') return;
+    const data = lastResponse.notification.request.content.data as NotificationData;
+    navigateFromNotification(data);
+  }, [lastResponse]);
+}
+
 function RootLayoutInner() {
   useProtectedRoute();
+  useNotificationTapHandler();
 
   return (
     <>
@@ -100,8 +145,35 @@ export default function RootLayout() {
         const accessToken = await tokenStorage.getAccessToken();
         if (!accessToken) return;
 
+        // Biometric gate — if enabled, user must authenticate before session is restored
+        const biometricEnabled = await biometricStorage.isEnabled();
+        if (biometricEnabled && Platform.OS !== 'web') {
+          const [hw, enrolled] = await Promise.all([
+            LocalAuthentication.hasHardwareAsync(),
+            LocalAuthentication.isEnrolledAsync(),
+          ]);
+          if (hw && enrolled) {
+            const result = await LocalAuthentication.authenticateAsync({
+              promptMessage: 'Zaloguj się do PawFlo',
+              cancelLabel: 'Użyj hasła',
+              fallbackLabel: 'Użyj hasła',
+            });
+            if (!result.success) {
+              await tokenStorage.clearTokens();
+              return;
+            }
+          }
+        }
+
         const { user, hasDog } = await api.users.me();
         setUser(user, hasDog);
+
+        // Register for push notifications and send token to backend (fire-and-forget)
+        if (Platform.OS !== 'web') {
+          registerForPushNotifications().then((token) => {
+            if (token) void api.users.updatePushToken(token);
+          });
+        }
       } catch {
         // 401 or network error — user stays unauthenticated, guard redirects to login
         await tokenStorage.clearTokens();

@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 const KEYS = {
   ACCESS_TOKEN: 'pawflo_access_token',
   REFRESH_TOKEN: 'pawflo_refresh_token',
+  BIOMETRIC_ENABLED: 'pawflo_biometric_enabled',
 } as const;
 
 // Keychain (iOS) / Keystore (Android) — NEVER AsyncStorage or localStorage.
@@ -31,5 +32,22 @@ export const tokenStorage = {
       SecureStore.deleteItemAsync(KEYS.ACCESS_TOKEN),
       SecureStore.deleteItemAsync(KEYS.REFRESH_TOKEN),
     ]);
+  },
+};
+
+export const biometricStorage = {
+  async setEnabled(enabled: boolean): Promise<void> {
+    if (enabled) {
+      await SecureStore.setItemAsync(KEYS.BIOMETRIC_ENABLED, '1', {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+    } else {
+      await SecureStore.deleteItemAsync(KEYS.BIOMETRIC_ENABLED);
+    }
+  },
+
+  async isEnabled(): Promise<boolean> {
+    const val = await SecureStore.getItemAsync(KEYS.BIOMETRIC_ENABLED);
+    return val === '1';
   },
 };

@@ -6,6 +6,10 @@ import { verifyPassword } from '../lib/crypto';
 import { requireAuth } from '../middleware/requireAuth';
 import { logger } from '../lib/logger';
 
+const PushTokenSchema = z.object({
+  token: z.string().regex(/^ExponentPushToken\[.+\]$/).max(300),
+});
+
 const UpdateProfileSchema = z.object({
   firstName: z.string().min(1).max(100).trim().optional(),
   lastName:  z.string().min(1).max(100).trim().optional(),
@@ -14,6 +18,19 @@ const UpdateProfileSchema = z.object({
 
 export async function userRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireAuth);
+
+  // POST /api/users/push-token — register/refresh Expo push token after login
+  app.post('/push-token', async (req, reply) => {
+    const parsed = PushTokenSchema.safeParse(req.body);
+    if (!parsed.success) return reply.status(422).send({ error: 'Nieprawidłowy token push.' });
+
+    await app.prisma.user.update({
+      where: { id: req.userId! },
+      data: { pushToken: parsed.data.token },
+    });
+
+    return reply.status(204).send();
+  });
 
   // GET /api/users/me — session restore on mobile app startup
   app.get('/me', async (req, reply) => {

@@ -15,8 +15,10 @@
     "@prisma/client": "^5.22.0",
     "@sentry/nextjs": "^10.52.0",
     "framer-motion": "^11.2.0",
+    "gray-matter": "^4.0.3",
     "lucide-react": "^0.378.0",
     "next": "14.2.35",
+    "next-mdx-remote": "^6.0.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
     "zod": "^3.23.0"

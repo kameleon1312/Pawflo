@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { SwipeSchema } from '@pawflo/validation';
 import { requireAuth } from '../middleware/requireAuth';
 import { logger } from '../lib/logger';
+import { sendMatchPush } from '../lib/push';
 
 export async function swipeRoutes(app: FastifyInstance): Promise<void> {
   app.addHook('preHandler', requireAuth);
@@ -48,7 +49,7 @@ export async function swipeRoutes(app: FastifyInstance): Promise<void> {
 
     const myDog = await app.prisma.dog.findFirst({
       where: { ownerId: req.userId!, deletedAt: null },
-      select: { id: true },
+      select: { id: true, name: true },
     });
     if (!myDog) return reply.status(404).send({ error: 'Nie masz psa w profilu.' });
 
@@ -84,6 +85,13 @@ export async function swipeRoutes(app: FastifyInstance): Promise<void> {
         matched = true;
         matchId = match.id;
         logger.info({ event: 'match.create', matchId: match.id }, 'New match created');
+
+        // Notify the other dog's owner — they LIKE'd first and don't know it's a match yet
+        const otherDog = await app.prisma.dog.findUnique({
+          where: { id: swipeeId },
+          select: { owner: { select: { pushToken: true } } },
+        });
+        void sendMatchPush(otherDog?.owner.pushToken, myDog.name);
       }
     }
 

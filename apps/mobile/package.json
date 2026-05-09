@@ -8,12 +8,14 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "lint": "eslint . --ext .ts,.tsx",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@expo-google-fonts/fraunces": "^0.2.3",
     "@expo/vector-icons": "^15.1.1",
     "@hookform/resolvers": "^3.6.0",
+    "@pawflo/api-client": "workspace:*",
     "@pawflo/theme": "workspace:*",
     "@pawflo/types": "workspace:*",
     "@pawflo/utils": "workspace:*",
@@ -26,6 +28,7 @@
     "expo-image-picker": "^55.0.20",
     "expo-linear-gradient": "~15.0.8",
     "expo-local-authentication": "~17.0.8",
+    "expo-location": "^55.1.9",
     "expo-notifications": "~0.32.17",
     "expo-router": "~6.0.23",
     "expo-secure-store": "~15.0.8",
@@ -50,6 +53,7 @@
     "@types/react": "~19.1.17",
     "babel-plugin-module-resolver": "^5.0.3",
     "eslint": "^8.57.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^4.1.5"
   }
 }

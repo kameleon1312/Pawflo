@@ -73,6 +73,12 @@ enum AuditAction {
   PROFILE_UPDATE
 }
 
+enum PlaceType {
+  VET
+  SHOP
+  GROOMER
+}
+
 // ─── Core ─────────────────────────────────────────────────────────────────────
 
 model User {
@@ -95,6 +101,8 @@ model User {
 
   plan               Plan      @default(FREE)
   planExpiresAt      DateTime?
+
+  pushToken          String?   @db.VarChar(255)  // Expo push token (ExponentPushToken[...])
 
   consentTerms       DateTime
   consentPrivacy     DateTime
@@ -299,6 +307,26 @@ model AuditLog {
 
   @@index([userId])
   @@index([createdAt])
+}
+
+// ─── PawMap ───────────────────────────────────────────────────────────────────
+
+model Place {
+  id        String    @id @default(cuid())
+  name      String    @db.VarChar(200)
+  type      PlaceType
+  address   String    @db.VarChar(300)
+  city      String    @db.VarChar(100)
+  lat       Float
+  lng       Float
+  phone     String?   @db.VarChar(30)
+  website   String?   @db.VarChar(300)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@unique([name, city])
+  @@index([type])
+  @@index([city])
 }
 
 // ─── Waitlist ─────────────────────────────────────────────────────────────────

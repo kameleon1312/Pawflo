@@ -48,11 +48,14 @@ export const strings = {
     filterGroomer:  'Groomer',
     call:           'Zadzwoń',
     noPhone:        'Brak numeru',
-    locationNote:   'Mapa pokazuje Warszawę. Lokalizacja GPS wkrótce.',
+    locationNote:      'Wyświetlono miejsca w promieniu 10 km.',
+    locationLoading:   'Pobieranie lokalizacji…',
+    locationDenied:    'Brak dostępu do lokalizacji. Włącz uprawnienia w ustawieniach.',
+    locationFallback:  'Brak lokalizacji — pokazuję Warszawę.',
     types: {
-      vet:     'Weterynarz',
-      shop:    'Sklep zoologiczny',
-      groomer: 'Groomer',
+      VET:     'Weterynarz',
+      SHOP:    'Sklep zoologiczny',
+      GROOMER: 'Groomer',
     },
   },
   pawpanel: {

@@ -28,10 +28,13 @@ export function signAccessToken(userId: string): string {
 }
 
 export function signRefreshToken(userId: string): string {
-  return jwt.sign({ sub: userId, type: 'refresh' }, REFRESH_SECRET, {
-    ...JWT_OPTIONS,
-    expiresIn: '7d',
-  });
+  // jti (JWT ID) makes each token unique even when signed within the same second,
+  // preventing unique-constraint collisions in the RefreshToken table during rotation.
+  return jwt.sign(
+    { sub: userId, type: 'refresh', jti: crypto.randomBytes(8).toString('hex') },
+    REFRESH_SECRET,
+    { ...JWT_OPTIONS, expiresIn: '7d' },
+  );
 }
 
 export function verifyAccessToken(token: string): { sub: string } {

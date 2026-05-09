@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { SendMessageSchema } from '@pawflo/validation';
 import { requireAuth } from '../middleware/requireAuth';
 import { emitNewMessage } from '../lib/socket';
+import { sendMessagePush } from '../lib/push';
 
 async function getMatchForUser(
   app: FastifyInstance,
@@ -71,6 +72,22 @@ export async function chatRoutes(app: FastifyInstance): Promise<void> {
 
     // Broadcast to all room members (including sender) for instant UI update
     emitNewMessage(matchId, message);
+
+    // Push to the other dog's owner — fire-and-forget, must not block response
+    const otherDogId = ctx.match.dogAId === ctx.myDogId ? ctx.match.dogBId : ctx.match.dogAId;
+    const [otherDog, senderDog] = await Promise.all([
+      app.prisma.dog.findUnique({
+        where: { id: otherDogId },
+        select: { owner: { select: { pushToken: true } } },
+      }),
+      app.prisma.dog.findUnique({
+        where: { id: ctx.myDogId },
+        select: { name: true },
+      }),
+    ]);
+    if (senderDog) {
+      void sendMessagePush(otherDog?.owner.pushToken, senderDog.name, parsed.data.text, matchId);
+    }
 
     return reply.status(201).send({ message });
   });

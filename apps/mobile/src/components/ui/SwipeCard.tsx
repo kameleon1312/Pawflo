@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  Animated,
-  Dimensions,
-  PanResponder,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Dimensions, Pressable, StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  interpolate,
+  Extrapolation,
+  runOnJS,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { Image } from 'expo-image';
 import * as Haptics from 'expo-haptics';
 import type { CandidateDog } from '@pawflo/types';
@@ -25,53 +27,45 @@ type Props = {
 };
 
 export function SwipeCard({ dog, onSwipe }: Props) {
-  const pan = useRef(new Animated.ValueXY()).current;
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
   const [photoIndex, setPhotoIndex] = useState(0);
   const photoIndexRef = useRef(0);
   const photosRef = useRef(dog.photos);
   photosRef.current = dog.photos;
 
-  const rotate = pan.x.interpolate({
-    inputRange: [-SCREEN_W / 2, 0, SCREEN_W / 2],
-    outputRange: ['-7deg', '0deg', '7deg'],
-    extrapolate: 'clamp',
-  });
-
-  const likeOpacity = pan.x.interpolate({
-    inputRange: [0, 60],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-
-  const passOpacity = pan.x.interpolate({
-    inputRange: [-60, 0],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
-        useNativeDriver: false,
-      }),
-      onPanResponderRelease: (_, gesture) => {
-        if (Math.abs(gesture.dx) > SWIPE_THRESHOLD) {
-          flyOut(gesture.dx > 0 ? 'LIKE' : 'PASS', gesture.dy);
-        } else if (Math.abs(gesture.dx) < 8 && Math.abs(gesture.dy) < 8) {
-          const len = photosRef.current.length;
-          if (len > 1) {
-            const next = (photoIndexRef.current + 1) % len;
-            photoIndexRef.current = next;
-            setPhotoIndex(next);
-          }
-        } else {
-          Animated.spring(pan, { toValue: { x: 0, y: 0 }, useNativeDriver: false }).start();
-        }
+  const cardStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      {
+        rotate: `${interpolate(
+          translateX.value,
+          [-SCREEN_W / 2, 0, SCREEN_W / 2],
+          [-7, 0, 7],
+          Extrapolation.CLAMP,
+        )}deg`,
       },
-    }),
-  ).current;
+    ],
+  }));
 
+  const likeStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(translateX.value, [0, 60], [0, 1], Extrapolation.CLAMP),
+  }));
+
+  const passStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(translateX.value, [-60, 0], [1, 0], Extrapolation.CLAMP),
+  }));
+
+  function cyclePhoto() {
+    const len = photosRef.current.length;
+    if (len < 2) return;
+    const next = (photoIndexRef.current + 1) % len;
+    photoIndexRef.current = next;
+    setPhotoIndex(next);
+  }
+
+  // Called from JS thread (button press) or via runOnJS from UI thread (gesture onEnd)
   function flyOut(direction: 'LIKE' | 'PASS', dy = 0) {
     if (direction === 'LIKE') {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -79,100 +73,120 @@ export function SwipeCard({ dog, onSwipe }: Props) {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
     const toX = direction === 'LIKE' ? SCREEN_W * 1.6 : -SCREEN_W * 1.6;
-    Animated.timing(pan, {
-      toValue: { x: toX, y: dy },
-      duration: SWIPE_OUT_DURATION,
-      useNativeDriver: false,
-    }).start(() => onSwipe(direction));
+    translateX.value = withTiming(toX, { duration: SWIPE_OUT_DURATION }, (finished) => {
+      'worklet';
+      if (finished) runOnJS(onSwipe)(direction);
+    });
+    translateY.value = withTiming(dy, { duration: SWIPE_OUT_DURATION });
   }
+
+  const pan = Gesture.Pan()
+    .minDistance(0)
+    .onUpdate((e) => {
+      translateX.value = e.translationX;
+      translateY.value = e.translationY;
+    })
+    .onEnd((e) => {
+      'worklet';
+      const isSwipe = Math.abs(e.translationX) > SWIPE_THRESHOLD;
+      const isTap = Math.abs(e.translationX) < 8 && Math.abs(e.translationY) < 8;
+
+      if (isSwipe) {
+        runOnJS(flyOut)(e.translationX > 0 ? 'LIKE' : 'PASS', e.translationY);
+      } else if (isTap) {
+        runOnJS(cyclePhoto)();
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      } else {
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      }
+    });
 
   // Reset card position and photo index when the dog changes (next card rendered)
   useEffect(() => {
-    pan.setValue({ x: 0, y: 0 });
+    translateX.value = 0;
+    translateY.value = 0;
     photoIndexRef.current = 0;
     setPhotoIndex(0);
-  }, [dog.id, pan]);
+  }, [dog.id]);
 
   const photo = dog.photos[photoIndex] ?? dog.photos[0];
   const ageLabel = dog.birthDate ? formatAge(dog.birthDate) : null;
 
   return (
-    <Animated.View
-      style={[
-        styles.card,
-        { transform: [{ translateX: pan.x }, { translateY: pan.y }, { rotate }] },
-      ]}
-      {...panResponder.panHandlers}
-    >
-      {/* Photo */}
-      {photo ? (
-        <Image source={{ uri: photo.url }} style={styles.photo} contentFit="cover" />
-      ) : (
-        <View style={styles.photoPlaceholder}>
-          <Text style={styles.photoPlaceholderText}>🐾</Text>
-        </View>
-      )}
-
-      {/* Progress dots */}
-      {dog.photos.length > 1 && (
-        <View style={styles.dotsRow}>
-          {dog.photos.map((_, i) => (
-            <View key={i} style={[styles.dotBar, i === photoIndex && styles.dotBarActive]} />
-          ))}
-        </View>
-      )}
-
-      {/* LIKE / PASS badge overlays */}
-      <Animated.View style={[styles.badge, styles.likeBadge, { opacity: likeOpacity }]}>
-        <Text style={styles.likeText}>LUBIĘ</Text>
-      </Animated.View>
-      <Animated.View style={[styles.badge, styles.passBadge, { opacity: passOpacity }]}>
-        <Text style={styles.passText}>PASS</Text>
-      </Animated.View>
-
-      {/* Info + actions overlay at the bottom */}
-      <View style={styles.bottomOverlay}>
-        <View style={styles.info}>
-          <Text style={styles.dogName} numberOfLines={1}>
-            {dog.name}{ageLabel ? `, ${ageLabel}` : ''}
-          </Text>
-          <View style={styles.metaRow}>
-            {dog.breed ? (
-              <Text style={styles.metaText} numberOfLines={1}>{dog.breed}</Text>
-            ) : null}
-            <View style={styles.sizePill}>
-              <Text style={styles.sizePillText}>{SIZE_LABEL[dog.size] ?? dog.size}</Text>
-            </View>
+    <GestureDetector gesture={pan}>
+      <Animated.View style={[styles.card, cardStyle]}>
+        {/* Photo */}
+        {photo ? (
+          <Image source={{ uri: photo.url }} style={styles.photo} contentFit="cover" />
+        ) : (
+          <View style={styles.photoPlaceholder}>
+            <Text style={styles.photoPlaceholderText}>🐾</Text>
           </View>
-          {dog.owner.locationCity ? (
-            <Text style={styles.city}>📍 {dog.owner.locationCity}</Text>
-          ) : null}
-          {dog.bio ? (
-            <Text style={styles.bio} numberOfLines={2}>{dog.bio}</Text>
-          ) : null}
-        </View>
+        )}
 
-        {/* Action buttons */}
-        <View style={styles.actions}>
-          <Pressable
-            style={[styles.btn, styles.btnPass]}
-            onPress={() => flyOut('PASS')}
-            accessibilityRole="button"
-            accessibilityLabel="Pomiń psa"
-          >
-            <Text style={styles.btnPassText}>✕</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.btn, styles.btnLike]}
-            onPress={() => flyOut('LIKE')}
-            accessibilityRole="button"
-            accessibilityLabel="Lubię psa"
-          >
-            <Text style={styles.btnLikeText}>♥</Text>
-          </Pressable>
+        {/* Progress dots */}
+        {dog.photos.length > 1 && (
+          <View style={styles.dotsRow}>
+            {dog.photos.map((_, i) => (
+              <View key={i} style={[styles.dotBar, i === photoIndex && styles.dotBarActive]} />
+            ))}
+          </View>
+        )}
+
+        {/* LIKE / PASS badge overlays */}
+        <Animated.View style={[styles.badge, styles.likeBadge, likeStyle]}>
+          <Text style={styles.likeText}>LUBIĘ</Text>
+        </Animated.View>
+        <Animated.View style={[styles.badge, styles.passBadge, passStyle]}>
+          <Text style={styles.passText}>PASS</Text>
+        </Animated.View>
+
+        {/* Info + actions overlay at the bottom */}
+        <View style={styles.bottomOverlay}>
+          <View style={styles.info}>
+            <Text style={styles.dogName} numberOfLines={1}>
+              {dog.name}{ageLabel ? `, ${ageLabel}` : ''}
+            </Text>
+            <View style={styles.metaRow}>
+              {dog.breed ? (
+                <Text style={styles.metaText} numberOfLines={1}>{dog.breed}</Text>
+              ) : null}
+              <View style={styles.sizePill}>
+                <Text style={styles.sizePillText}>{SIZE_LABEL[dog.size] ?? dog.size}</Text>
+              </View>
+            </View>
+            {dog.owner.locationCity ? (
+              <Text style={styles.city}>📍 {dog.owner.locationCity}</Text>
+            ) : null}
+            {dog.bio ? (
+              <Text style={styles.bio} numberOfLines={2}>{dog.bio}</Text>
+            ) : null}
+          </View>
+
+          {/* Action buttons */}
+          <View style={styles.actions}>
+            <Pressable
+              style={[styles.btn, styles.btnPass]}
+              onPress={() => flyOut('PASS')}
+              accessibilityRole="button"
+              accessibilityLabel="Pomiń psa"
+            >
+              <Text style={styles.btnPassText}>✕</Text>
+            </Pressable>
+            <Pressable
+              style={[styles.btn, styles.btnLike]}
+              onPress={() => flyOut('LIKE')}
+              accessibilityRole="button"
+              accessibilityLabel="Lubię psa"
+            >
+              <Text style={styles.btnLikeText}>♥</Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
@@ -226,7 +240,6 @@ const styles = StyleSheet.create({
   },
   photoPlaceholderText: { fontSize: 72 },
 
-  // LIKE / PASS badges
   badge: {
     position: 'absolute',
     top: 28,
@@ -250,7 +263,6 @@ const styles = StyleSheet.create({
     letterSpacing: 2,
   },
 
-  // Bottom overlay: info text + action buttons
   bottomOverlay: {
     position: 'absolute',
     bottom: 0,
@@ -293,7 +305,6 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Action buttons bar
   actions: {
     flexDirection: 'row',
     justifyContent: 'center',

@@ -2,6 +2,7 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
+    setupFiles: ['./src/__tests__/setup.ts'],
     env: {
       JWT_ACCESS_SECRET:  'test-access-secret-minimum-32-chars!!',
       JWT_REFRESH_SECRET: 'test-refresh-secret-minimum-32-chars!',
