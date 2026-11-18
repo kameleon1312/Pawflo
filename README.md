@@ -1,11 +1,12 @@
 # PawFlo
 
-Polish dog community + matchmaking application.
+Wirtualny świat psiego kolegi: panel zdrowia, pamiętnik, album, dzienniczek, mapa spacerów, poradniki i społeczność.
 
 > "Każdy pies zasługuje na świetne życie."
 
 ## Documentation
 
+- 🐾 [Wizja produktu v2](./docs/VISION.md) — nowa koncepcja (propozycja do akceptacji)
 - 📘 [Master instruction](./PAWFLO_INSTRUKCJA_AGENTA_VSC.md)
 - 🤖 [Claude Code rules](./CLAUDE.md)
 - 🏗️ [Architecture](./docs/ARCHITECTURE.md) — coming soon
