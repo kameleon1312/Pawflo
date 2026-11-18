@@ -3,18 +3,18 @@ import { FadeIn } from '@/components/ui/FadeIn';
 const STEPS = [
   {
     step: '01',
-    title: 'Utwórz profil psa',
-    description: 'Dodaj zdjęcia, opis charakteru i preferencje. Zajmuje to 3 minuty.',
+    title: 'Poznaj swojego pupila na nowo',
+    description: 'Załóż profil psa: rasa, chip, zdjęcia i historia zdrowia. Zajmuje to kilka minut.',
   },
   {
     step: '02',
-    title: 'Swipe i dopasuj',
-    description: 'Przeglądaj psy z okolicy, swipuj i czekaj na match — dokładnie jak Tinder.',
+    title: 'Zapisuj, co ważne',
+    description: 'Dodawaj wpisy do pamiętnika, notatki do dzienniczka, zdjęcia do albumu i spoty na mapę spacerów.',
   },
   {
     step: '03',
-    title: 'Spotkaj się i buduj relację',
-    description: 'Ustal termin spotkania przez czat i ciesz się, gdy psy się polubią.',
+    title: 'Wracaj do wspomnień i wiedzy',
+    description: 'Przeglądaj oś czasu, korzystaj z poradników i wymieniaj się doświadczeniami ze społecznością.',
   },
 ] as const;
 

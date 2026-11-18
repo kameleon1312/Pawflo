@@ -33,21 +33,21 @@ export function HeroSection() {
       <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
         <FadeIn delay={0.05}>
           <p className="font-sans text-xs font-semibold tracking-[0.18em] uppercase text-coralSoft mb-6">
-            Miłość na czterech łapach
+            Wirtualny świat Twojego psa
           </p>
         </FadeIn>
 
         <FadeIn delay={0.15}>
           <h1 className="font-serif font-bold text-cream text-5xl md:text-7xl lg:text-8xl
                          max-w-3xl text-balance mb-8 leading-tight">
-            Znajdź kompana dla&nbsp;swojego&nbsp;psa
+            Wszystko,&nbsp;co&nbsp;ważne&nbsp;o&nbsp;Twoim&nbsp;psie
           </h1>
         </FadeIn>
 
         <FadeIn delay={0.25}>
           <p className="font-sans text-lg md:text-xl text-bone max-w-xl leading-relaxed mb-12">
-            Dopasowania MachDog, panel zdrowia PawPanel i mapa usług PawMap.
-            Wszystko czego potrzebujesz — w jednej aplikacji.
+            Zdrowie, pamiętnik, album, ulubione spacery i poradniki.
+            Cała jego historia i cała wiedza w jednej aplikacji.
           </p>
         </FadeIn>
 

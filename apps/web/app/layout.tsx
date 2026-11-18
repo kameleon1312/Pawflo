@@ -26,11 +26,11 @@ const cabinetGrotesk = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL('https://pawflo.pl'),
   title: {
-    default: 'PawFlo — Znajdź soulmate\'a dla swojego psa',
+    default: 'PawFlo — Wirtualny świat Twojego psa',
     template: '%s | PawFlo',
   },
   description:
-    'PawFlo łączy psy z okolicy. Dopasowania MachDog, panel zdrowia PawPanel i mapa usług PawMap — wszystko w jednej aplikacji mobilnej.',
+    'PawFlo to cyfrowy dom Twojego psa: panel zdrowia, pamiętnik, album, dzienniczek, mapa spacerów i poradniki w jednej aplikacji mobilnej.',
   keywords: ['aplikacja dla psów', 'psy Polska', 'spotkania psów', 'panel zdrowia psa', 'weterynarz mapa'],
   authors: [{ name: 'PawFlo' }],
   openGraph: {

@@ -28,11 +28,11 @@ export function B2bSection() {
                 Dotrzyj do właścicieli psów w swojej okolicy
               </h2>
               <p className="font-sans text-bone text-lg leading-relaxed">
-                Dodaj swoją firmę do PawMap i pojawiaj się tam, gdzie właściciele psów szukają usług.
+                Dodaj swoją firmę do mapy PawFlo i pojawiaj się tam, gdzie właściciele psów szukają usług.
                 Bez prowizji, bez ukrytych opłat — tylko płaski abonament.
               </p>
               <ul className="flex flex-col gap-3">
-                {['Profil firmy na PawMap', 'Recenzje i oceny od właścicieli', 'Powiadomienia push do lokalnych użytkowników', 'Dashboard ze statystykami'].map((item) => (
+                {['Profil firmy na mapie PawFlo', 'Recenzje i oceny od właścicieli', 'Powiadomienia push do lokalnych użytkowników', 'Dashboard ze statystykami'].map((item) => (
                   <li key={item} className="flex items-center gap-3 font-sans text-bone text-sm">
                     <span className="text-coral" aria-hidden="true">✓</span>
                     {item}

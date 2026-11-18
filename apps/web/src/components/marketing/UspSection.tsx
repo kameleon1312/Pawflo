@@ -3,33 +3,33 @@ import { FadeIn } from '@/components/ui/FadeIn';
 const USPS = [
   {
     icon: '🐾',
-    title: 'Tylko dla właścicieli psów',
-    description: 'Zero kotów, chomików i innych. Społeczność zbudowana wokół jednej pasji.',
+    title: 'Tylko o psach',
+    description: 'Zero kotów, chomików i innych. Wszystko zbudowane wokół jednej pasji i jednego pupila.',
   },
   {
     icon: '🔒',
-    title: 'Twoje dane są bezpieczne',
-    description: 'Szyfrowanie end-to-end, zgodność z RODO, żadnych reklam opartych na danych.',
+    title: 'Prywatne z założenia',
+    description: 'Pamiętnik i notatki medyczne są szyfrowane. Zgodność z RODO, żadnych reklam opartych na Twoich danych.',
   },
   {
-    icon: '📍',
-    title: 'Lokalnie — Twoja okolica',
-    description: 'Dopasowania i usługi w promieniu który sam ustawiasz. Od sąsiedztwa do całego miasta.',
+    icon: '📖',
+    title: 'Nic nie ginie',
+    description: 'Wspomnienia, wyniki badań i postępy w jednym miejscu, a nie w galerii telefonu i szufladzie.',
   },
   {
     icon: '❤️',
     title: 'Zdrowie pod kontrolą',
-    description: 'Szczepienia, wizyty, waga — nigdy więcej zgubionej kartki od weterynarza.',
+    description: 'Szczepienia, wizyty, waga. Nigdy więcej zgubionej kartki od weterynarza.',
   },
   {
-    icon: '⚡',
-    title: 'Jedna aplikacja, trzy światy',
-    description: 'MachDog, PawPanel i PawMap w jednym miejscu. Bez przeskakiwania między appkami.',
+    icon: '🧭',
+    title: 'Wiedza bez szukania',
+    description: 'Poradniki o rzeczach, które trudno znaleźć, napisane i sprawdzone przez redakcję PawFlo.',
   },
   {
     icon: '🇵🇱',
-    title: 'Polska — od podstaw',
-    description: 'Zbudowane dla polskich właścicieli psów. Polski support, polskie usługi, polska społeczność.',
+    title: 'Polska, od podstaw',
+    description: 'Dla polskich opiekunów psów: polski język, polskie realia, polska społeczność.',
   },
 ] as const;
 
