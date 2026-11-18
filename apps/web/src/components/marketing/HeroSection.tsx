@@ -40,7 +40,7 @@ export function HeroSection() {
         <FadeIn delay={0.15}>
           <h1 className="font-serif font-bold text-cream text-5xl md:text-7xl lg:text-8xl
                          max-w-3xl text-balance mb-8 leading-tight">
-            Wszystko,&nbsp;co&nbsp;ważne&nbsp;o&nbsp;Twoim&nbsp;psie
+            Wszystko, co ważne o&nbsp;Twoim&nbsp;psie
           </h1>
         </FadeIn>
 
