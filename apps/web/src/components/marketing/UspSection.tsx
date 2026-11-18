@@ -35,27 +35,27 @@ const USPS = [
 
 export function UspSection() {
   return (
-    <section className="bg-ink py-24 md:py-32" aria-labelledby="usp-heading">
+    <section className="bg-neu py-24 md:py-32" aria-labelledby="usp-heading">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn className="text-center mb-16">
           <h2
             id="usp-heading"
-            className="font-serif font-bold text-cream text-4xl md:text-5xl text-balance mb-4"
+            className="font-serif font-bold text-neu-hi text-4xl md:text-5xl text-balance mb-4"
           >
             Dlaczego PawFlo?
           </h2>
-          <p className="font-sans text-bone text-lg max-w-xl mx-auto">
+          <p className="font-sans text-neu-mid text-lg max-w-xl mx-auto">
             Nie kolejna aplikacja dla zwierząt. Pierwsza, która naprawdę rozumie właścicieli psów.
           </p>
         </FadeIn>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
           {USPS.map(({ icon, title, description }, i) => (
             <FadeIn key={title} delay={i * 0.08}>
-              <div className="flex flex-col gap-4 p-6 rounded-2xl border border-white/10 hover:border-coral/30 transition-colors">
-                <span className="text-3xl" aria-hidden="true">{icon}</span>
-                <h3 className="font-serif font-bold text-cream text-xl">{title}</h3>
-                <p className="font-sans text-textFaint text-sm leading-relaxed">{description}</p>
+              <div className="flex flex-col gap-4 p-7 rounded-3xl shadow-neu-raised h-full">
+                <span className="w-14 h-14 rounded-2xl shadow-neu-inset flex items-center justify-center text-2xl" aria-hidden="true">{icon}</span>
+                <h3 className="font-serif font-bold text-neu-hi text-xl">{title}</h3>
+                <p className="font-sans text-neu-mid text-sm leading-relaxed">{description}</p>
               </div>
             </FadeIn>
           ))}

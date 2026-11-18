@@ -37,22 +37,22 @@ export function WaitlistSection() {
   return (
     <section
       id="waitlist"
-      className="bg-ink py-24 md:py-32"
+      className="bg-neu py-24 md:py-32"
       aria-labelledby="waitlist-heading"
     >
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2
           id="waitlist-heading"
-          className="font-serif font-bold text-cream text-4xl md:text-5xl text-balance mb-4"
+          className="font-serif font-bold text-neu-hi text-4xl md:text-5xl text-balance mb-4"
         >
           Bądź pierwszy
         </h2>
-        <p className="font-sans text-bone text-lg mb-10">
+        <p className="font-sans text-neu-mid text-lg mb-10">
           Aplikacja w przygotowaniu. Zostaw e-mail — powiadomimy Cię przy starcie.
         </p>
 
         {status === 'success' ? (
-          <p className="font-sans text-coral text-lg font-semibold">
+          <p className="font-sans text-neu-accent text-lg font-semibold">
             Jesteś na liście! Do zobaczenia przy starcie 🐾
           </p>
         ) : (
@@ -67,17 +67,15 @@ export function WaitlistSection() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="twoj@email.pl"
               required
-              className="flex-1 bg-inkSoft border border-warmLine text-cream placeholder:text-textFaint
-                         font-sans text-base px-5 py-3.5 rounded-full focus:outline-none
-                         focus:border-coral transition-colors"
+              className="flex-1 bg-neu text-neu-hi placeholder:text-neu-low shadow-neu-inset
+                         font-sans text-base px-6 py-4 rounded-full"
               aria-describedby={errorMsg ? 'waitlist-error' : undefined}
             />
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="bg-coral-gradient text-cream font-sans font-semibold text-sm
-                         px-7 py-3.5 rounded-full hover:opacity-90 transition-opacity
-                         disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              className="neu-btn-primary text-sm px-8 py-4 disabled:opacity-50
+                         disabled:cursor-not-allowed whitespace-nowrap"
             >
               {status === 'loading' ? 'Wysyłam...' : 'Dołącz'}
             </button>
@@ -85,7 +83,7 @@ export function WaitlistSection() {
         )}
 
         {errorMsg && (
-          <p id="waitlist-error" role="alert" className="font-sans text-danger text-sm mt-3">
+          <p id="waitlist-error" role="alert" className="font-sans text-danger text-sm mt-4">
             {errorMsg}
           </p>
         )}

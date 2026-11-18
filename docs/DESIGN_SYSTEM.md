@@ -1,6 +1,6 @@
 # PawFlo — Design System
 
-> Regime: **Soulmate** — Tinder × Family Tech  
+> Regime: **Soulmate** palette + **Soft UI** surfaces (see below). The Tinder-era sections further down are legacy.  
 > Single source of truth: `packages/theme/src/`
 
 ---
@@ -13,6 +13,38 @@ Two emotional registers, one product:
 - **Family Tech calm** — editorial serif, warm black instead of pure white, natural palette, breathing room, soft transitions
 
 The result: *a dating app that feels trustworthy enough for your dog*.
+
+---
+
+## Soft UI (Neumorphism) — v2 direction
+
+> Status: implemented on the marketing site (`apps/web`); the mobile app follows later.
+> Soft UI replaces the Tinder-era deck/gradient look. The Soulmate palette is unchanged.
+
+**Principle:** one surface color; depth comes only from a light and a dark shadow cast from opposite corners.
+Raised = clickable or a card. Inset = input, well, selected or pressed.
+
+| Variable | Light | Dark |
+|---|---|---|
+| `--neu-bg` | `cream` #F8EFE2 | `inkSoft` #2A1F19 |
+| `--neu-hi` (light shadow) | #FFFCF6 | #3F3128 |
+| `--neu-lo` (dark shadow) | #D9CCB6 | `ink` #1B1411 |
+| `--neu-text-hi / mid / low` | #1B1411 / #4A3C30 / #6B5C4F | #F8EFE2 / #E3D6C6 / #B9AA9B |
+| `--neu-accent` (text accents) | #B84545 | `coralSoft` #F4A8A8 |
+
+Theme follows `prefers-color-scheme` and can be overridden by the user (`data-theme`, stored in `localStorage`).
+
+**Elevation scale:** `raised-sm` buttons/nav, `raised` cards, `raised-lg` hero frame and featured plan, `inset` fields and icon wells, `inset-sm` pressed states.
+
+**Rules**
+1. Primary CTA is the only colored element: `coral → coralDeep` gradient with **ink** text (cream on coral fails contrast).
+2. Never rely on shadow alone: text keeps 4.5:1 contrast, every control has a visible label and a `:focus-visible` outline (2px `--neu-accent`).
+3. Pressed state = swap raised for inset; no scale animations.
+4. `--neu-accent` is a darker coral used **only** for small text on cream. Pending approval as a formal token in `@pawflo/theme`.
+5. Photos live inside a raised frame with an inset mat, never full-bleed with dark overlays.
+6. Respect 44x44pt touch targets; shadows must not shrink hit areas.
+
+**Open items:** formalize tokens in `@pawflo/theme` (needs approval), port to React Native (Reanimated shadows differ per platform: iOS `shadow*`, Android needs layered Views).
 
 ---
 

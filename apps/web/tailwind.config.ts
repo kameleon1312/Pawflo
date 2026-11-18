@@ -8,7 +8,24 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: Colors,
+      colors: {
+        ...Colors,
+        // Soft UI surfaces and text — values come from CSS variables so light/dark can switch at runtime
+        neu: {
+          DEFAULT: 'var(--neu-bg)',
+          hi: 'var(--neu-text-hi)',
+          mid: 'var(--neu-text-mid)',
+          low: 'var(--neu-text-low)',
+          accent: 'var(--neu-accent)',
+        },
+      },
+      boxShadow: {
+        'neu-raised-sm': '4px 4px 10px var(--neu-lo), -4px -4px 10px var(--neu-hi)',
+        'neu-raised': '8px 8px 18px var(--neu-lo), -8px -8px 18px var(--neu-hi)',
+        'neu-raised-lg': '14px 14px 30px var(--neu-lo), -14px -14px 30px var(--neu-hi)',
+        'neu-inset': 'inset 5px 5px 10px var(--neu-lo), inset -5px -5px 10px var(--neu-hi)',
+        'neu-inset-sm': 'inset 3px 3px 6px var(--neu-lo), inset -3px -3px 6px var(--neu-hi)',
+      },
       // Tailwind requires string values — convert numeric RN tokens to CSS pixel strings
       spacing: Object.fromEntries(Object.entries(Spacing).map(([k, v]) => [k, `${v}px`])),
       borderRadius: Object.fromEntries(Object.entries(BorderRadius).map(([k, v]) => [k, `${v}px`])),

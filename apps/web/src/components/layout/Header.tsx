@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { ThemeToggle } from '@/components/layout/ThemeShell';
 
 const NAV_LINKS = [
   { href: '/#funkcje', label: 'Funkcje' },
@@ -11,15 +12,7 @@ const NAV_LINKS = [
 ] as const;
 
 export function Header() {
-  const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   // Close menu on resize to desktop
   useEffect(() => {
@@ -29,36 +22,27 @@ export function Header() {
   }, []);
 
   return (
-    <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled || menuOpen
-          ? 'bg-bone/90 backdrop-blur-md border-b border-warmLine'
-          : 'bg-ink/80 backdrop-blur-sm border-b border-white/10'
-      }`}
-    >
+    <header className="sticky top-0 z-50 bg-neu shadow-neu-raised-sm">
       <nav
-        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
+        className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between"
         aria-label="Nawigacja główna"
       >
         <Link
           href="/"
-          className={`font-serif text-xl font-bold tracking-tight transition-colors duration-300 ${
-            scrolled || menuOpen ? 'text-ink' : 'text-cream'
-          }`}
+          className="font-serif text-2xl font-bold tracking-tight text-neu-hi"
           aria-label="PawFlo — strona główna"
         >
           PawFlo
         </Link>
 
         {/* Desktop nav */}
-        <ul className="hidden md:flex items-center gap-8 list-none m-0 p-0">
+        <ul className="hidden md:flex items-center gap-3 list-none m-0 p-0">
           {NAV_LINKS.map(({ href, label }) => (
             <li key={href}>
               <Link
                 href={href}
-                className={`font-sans text-sm transition-colors duration-300 hover:text-coral ${
-                  scrolled ? 'text-textMid' : 'text-bone'
-                }`}
+                className="inline-flex items-center font-sans text-sm text-neu-mid px-4 py-2.5 rounded-full
+                           transition-shadow hover:text-neu-hi hover:shadow-neu-inset-sm"
               >
                 {label}
               </Link>
@@ -67,58 +51,42 @@ export function Header() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="#waitlist"
-            className="hidden md:inline-flex items-center justify-center bg-coral-gradient
-                       text-cream font-sans font-semibold text-sm px-5 py-2.5 rounded-full
-                       hover:opacity-90 transition-opacity"
-          >
-            Pobierz aplikację
-          </Link>
+          <ThemeToggle />
+          {/* Wrapper hides it: component classes would otherwise override `hidden` */}
+          <div className="hidden md:block">
+            <Link href="#waitlist" className="neu-btn-primary text-sm px-6 py-3">
+              Pobierz aplikację
+            </Link>
+          </div>
 
           {/* Hamburger */}
           <button
-            className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5"
+            type="button"
+            className="md:hidden neu-btn w-11 h-11 flex-col gap-1.5"
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'}
             aria-expanded={menuOpen}
           >
-            <span
-              className={`block w-6 h-0.5 transition-all duration-300 origin-center ${
-                menuOpen
-                  ? 'rotate-45 translate-y-2 bg-ink'
-                  : scrolled ? 'bg-ink' : 'bg-cream'
-              }`}
-            />
-            <span
-              className={`block w-6 h-0.5 transition-all duration-300 ${
-                menuOpen ? 'opacity-0 bg-ink' : scrolled ? 'bg-ink' : 'bg-cream'
-              }`}
-            />
-            <span
-              className={`block w-6 h-0.5 transition-all duration-300 origin-center ${
-                menuOpen
-                  ? '-rotate-45 -translate-y-2 bg-ink'
-                  : scrolled ? 'bg-ink' : 'bg-cream'
-              }`}
-            />
+            <span className={`block w-5 h-0.5 bg-neu-hi transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-neu-hi transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`} />
+            <span className={`block w-5 h-0.5 bg-neu-hi transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
           </button>
         </div>
       </nav>
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${
-          menuOpen ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'
-        } bg-bone/95 backdrop-blur-md border-t border-warmLine`}
+        className={`md:hidden overflow-hidden transition-all duration-300 bg-neu ${
+          menuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+        }`}
       >
-        <ul className="flex flex-col px-4 py-4 gap-1 list-none m-0 p-0">
+        <ul className="flex flex-col px-4 py-4 gap-2 list-none m-0">
           {NAV_LINKS.map(({ href, label }) => (
             <li key={href}>
               <Link
                 href={href}
-                className="block font-sans text-base text-textMid hover:text-ink
-                           py-3 px-2 rounded-lg hover:bg-warmLine/30 transition-colors"
+                className="block font-sans text-base text-neu-mid py-3 px-5 rounded-2xl
+                           hover:text-neu-hi hover:shadow-neu-inset-sm transition-shadow"
                 onClick={() => setMenuOpen(false)}
               >
                 {label}
@@ -128,8 +96,7 @@ export function Header() {
           <li className="pt-2">
             <Link
               href="#waitlist"
-              className="block text-center bg-coral-gradient text-cream font-sans
-                         font-semibold text-sm px-6 py-3 rounded-full hover:opacity-90 transition-opacity"
+              className="neu-btn-primary w-full text-sm px-6 py-3.5"
               onClick={() => setMenuOpen(false)}
             >
               Pobierz aplikację

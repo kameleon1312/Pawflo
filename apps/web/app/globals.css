@@ -28,7 +28,66 @@
   }
 }
 
+@layer base {
+  /*
+   * Soft UI (neumorphism) theme, scoped to marketing pages via .neu-root.
+   * Why variables: both shadows must be derived from the same surface color,
+   * so switching theme only means swapping this small set of values.
+   */
+  .neu-root {
+    --neu-bg: #F8EFE2;        /* cream */
+    --neu-hi: #FFFCF6;        /* light shadow */
+    --neu-lo: #D9CCB6;        /* dark shadow */
+    --neu-text-hi: #1B1411;   /* ink */
+    --neu-text-mid: #4A3C30;
+    --neu-text-low: #6B5C4F;
+    --neu-accent: #B84545;    /* coralDeep darkened for 4.5:1 text contrast on cream */
+    background-color: var(--neu-bg);
+    color: var(--neu-text-hi);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .neu-root:not([data-theme='light']) {
+      --neu-bg: #2A1F19;      /* inkSoft */
+      --neu-hi: #3F3128;
+      --neu-lo: #1B1411;      /* ink */
+      --neu-text-hi: #F8EFE2;
+      --neu-text-mid: #E3D6C6;
+      --neu-text-low: #B9AA9B;
+      --neu-accent: #F4A8A8;  /* coralSoft */
+    }
+  }
+
+  .neu-root[data-theme='dark'] {
+    --neu-bg: #2A1F19;
+    --neu-hi: #3F3128;
+    --neu-lo: #1B1411;
+    --neu-text-hi: #F8EFE2;
+    --neu-text-mid: #E3D6C6;
+    --neu-text-low: #B9AA9B;
+    --neu-accent: #F4A8A8;
+  }
+
+  /* Soft UI hides edges, so focus must never rely on shadows alone */
+  .neu-root :focus-visible {
+    outline: 2px solid var(--neu-accent);
+    outline-offset: 3px;
+  }
+}
+
 @layer utilities {
+  /* Shared Soft UI controls */
+  .neu-btn {
+    @apply inline-flex items-center justify-center rounded-full bg-neu text-neu-hi font-sans
+           font-semibold shadow-neu-raised-sm transition-shadow duration-200
+           hover:shadow-neu-raised active:shadow-neu-inset-sm;
+  }
+  .neu-btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-coral-gradient text-ink font-sans
+           font-semibold shadow-neu-raised-sm transition-shadow duration-200
+           hover:shadow-neu-raised active:shadow-neu-inset-sm;
+  }
+
   .text-balance {
     text-wrap: balance;
   }

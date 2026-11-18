@@ -20,12 +20,12 @@ const STEPS = [
 
 export function HowItWorksSection() {
   return (
-    <section className="bg-cream py-24 md:py-32" aria-labelledby="how-heading">
+    <section className="bg-neu py-24 md:py-32" aria-labelledby="how-heading">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <FadeIn className="text-center mb-16">
           <h2
             id="how-heading"
-            className="font-serif font-bold text-ink text-4xl md:text-5xl text-balance"
+            className="font-serif font-bold text-neu-hi text-4xl md:text-5xl text-balance"
           >
             Jak to działa?
           </h2>
@@ -35,11 +35,11 @@ export function HowItWorksSection() {
           {STEPS.map(({ step, title, description }, i) => (
             <FadeIn key={step} delay={i * 0.12}>
               <li className="flex flex-col gap-4">
-                <span className="font-serif font-bold text-coralSoft text-6xl leading-none" aria-hidden="true">
+                <span className="w-20 h-20 rounded-full shadow-neu-inset flex items-center justify-center font-serif font-bold text-neu-accent text-3xl" aria-hidden="true">
                   {step}
                 </span>
-                <h3 className="font-serif font-bold text-ink text-2xl">{title}</h3>
-                <p className="font-sans text-textMid text-base leading-relaxed">{description}</p>
+                <h3 className="font-serif font-bold text-neu-hi text-2xl">{title}</h3>
+                <p className="font-sans text-neu-mid text-base leading-relaxed">{description}</p>
               </li>
             </FadeIn>
           ))}
