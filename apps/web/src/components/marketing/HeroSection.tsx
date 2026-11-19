@@ -1,39 +1,87 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { FadeIn } from '@/components/ui/FadeIn';
 
 /**
- * Paw silhouette used as a clip path. Why a 1.2 x 1 coordinate space with a scale():
- * objectBoundingBox units stretch to the element's box, so shapes are drawn at the
- * real 6:5 aspect ratio and squeezed back to 0..1 to keep the ellipses undistorted.
+ * One solid paw silhouette: a wide pad with four toes overlapping its top edge, so the
+ * union is a single connected shape (no gaps between toes and pad).
+ * Why a 4:3 box drawn in a 1.333 x 1 space and scaled by 0.75 on x: the photo is 4:3, so the
+ * whole photo fits uncropped, and shapes keep their real proportions (no stretched ellipses).
+ * Every shape must stay inside the box: the painted layers are the box itself, so anything outside is cut flat.
  */
 function PawClip() {
-  // Pad and toes are separate clip paths so each can show its own crop of the photo
-  const toes = (
-    <>
-      <ellipse cx="0.13" cy="0.47" rx="0.1" ry="0.15" transform="scale(0.8333 1) rotate(-30 0.13 0.47)" />
-      <ellipse cx="0.39" cy="0.22" rx="0.11" ry="0.17" transform="scale(0.8333 1) rotate(-10 0.39 0.22)" />
-      <ellipse cx="0.81" cy="0.22" rx="0.11" ry="0.17" transform="scale(0.8333 1) rotate(10 0.81 0.22)" />
-      <ellipse cx="1.07" cy="0.47" rx="0.1" ry="0.15" transform="scale(0.8333 1) rotate(30 1.07 0.47)" />
-    </>
-  );
-  const pad = (
-    <path
-      transform="scale(0.8333 1)"
-      d="M0.6 0.46 C0.84 0.46 0.98 0.64 0.98 0.78 C0.98 0.92 0.84 0.99 0.6 0.99 C0.36 0.99 0.22 0.92 0.22 0.78 C0.22 0.64 0.36 0.46 0.6 0.46 Z"
-    />
-  );
+  const squeeze = 'scale(0.75 1)';
   return (
     <svg width="0" height="0" className="absolute" aria-hidden="true" focusable="false">
       <defs>
         <clipPath id="paw-clip" clipPathUnits="objectBoundingBox">
-          {toes}
-          {pad}
+          <rect x="0" y="0.4" width="1.333" height="0.6" rx="0.26" ry="0.26" transform={squeeze} />
+          <ellipse cx="0.17" cy="0.4" rx="0.12" ry="0.17" transform={`${squeeze} rotate(-25 0.17 0.4)`} />
+          <ellipse cx="0.5" cy="0.24" rx="0.16" ry="0.21" transform={`${squeeze} rotate(-8 0.5 0.24)`} />
+          <ellipse cx="0.84" cy="0.24" rx="0.17" ry="0.21" transform={`${squeeze} rotate(8 0.84 0.24)`} />
+          <ellipse cx="1.163" cy="0.4" rx="0.12" ry="0.17" transform={`${squeeze} rotate(25 1.163 0.4)`} />
         </clipPath>
-        <clipPath id="paw-toes-clip" clipPathUnits="objectBoundingBox">{toes}</clipPath>
-        <clipPath id="paw-pad-clip" clipPathUnits="objectBoundingBox">{pad}</clipPath>
       </defs>
     </svg>
+  );
+}
+
+// Mosaic layout on an 8 x 6 grid: [col, row, colSpan, rowSpan]. Mixed sizes read as a hand-laid mosaic.
+const COLS = 8;
+const ROWS = 6;
+const BIG_TILES: ReadonlyArray<readonly [number, number, number, number]> = [
+  [1, 0, 2, 2],
+  [5, 0, 2, 2],
+  [3, 2, 2, 2],
+  [6, 3, 2, 2],
+  [0, 4, 2, 2],
+  [4, 4, 2, 1],
+];
+
+function buildTiles() {
+  const taken = new Set<string>();
+  const tiles: Array<{ col: number; row: number; cs: number; rs: number }> = [];
+  for (const [col, row, cs, rs] of BIG_TILES) {
+    tiles.push({ col, row, cs, rs });
+    for (let c = col; c < col + cs; c++) for (let r = row; r < row + rs; r++) taken.add(`${c},${r}`);
+  }
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      if (!taken.has(`${c},${r}`)) tiles.push({ col: c, row: r, cs: 1, rs: 1 });
+    }
+  }
+  return tiles;
+}
+
+const TILES = buildTiles();
+// Served through the Next image optimizer (1920 is a default device size) instead of the 5184px original
+const MOSAIC_SRC = '/_next/image?url=%2Fhero-dog.jpg&w=1920&q=80';
+
+function PawMosaic() {
+  return (
+    <div
+      className="absolute inset-0 grid gap-[5px]"
+      style={{
+        gridTemplateColumns: `repeat(${COLS}, 1fr)`,
+        gridTemplateRows: `repeat(${ROWS}, 1fr)`,
+      }}
+    >
+      {TILES.map(({ col, row, cs, rs }) => (
+        <div
+          key={`${col}-${row}`}
+          className="rounded-md sm:rounded-xl"
+          style={{
+            gridColumn: `${col + 1} / span ${cs}`,
+            gridRow: `${row + 1} / span ${rs}`,
+            backgroundImage: `url(${MOSAIC_SRC})`,
+            // Each tile shows its own slice of the one photo, so together they reassemble it
+            backgroundSize: `${(COLS / cs) * 100}% ${(ROWS / rs) * 100}%`,
+            backgroundPosition: `${COLS - cs === 0 ? 0 : (col / (COLS - cs)) * 100}% ${
+              ROWS - rs === 0 ? 0 : (row / (ROWS - rs)) * 100
+            }%`,
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -55,80 +103,24 @@ export function HeroSection() {
           {/* Paw frame: drop-shadow (not box-shadow) so the shadows follow the clipped silhouette */}
           <FadeIn delay={0.1}>
             <div
-              className="relative mx-auto w-full lg:w-[min(75vw,1040px)] aspect-[6/5]"
+              className="relative mx-auto w-full lg:w-[min(75vw,1040px)] aspect-[4/3]"
               style={{
                 filter:
                   'drop-shadow(14px 14px 22px var(--neu-lo)) drop-shadow(-14px -14px 22px var(--neu-hi))',
               }}
+              role="img"
+              aria-label="Opiekunka siedząca z psem na skale nad morzem o zachodzie słońca, zdjęcie ułożone w mozaikę w kształcie łapy"
             >
               <div className="absolute inset-0 bg-neu" style={{ clipPath: 'url(#paw-clip)' }} />
-              <div className="absolute inset-[3%]">
-                {/* Toes: scenery crop */}
-                <div className="absolute inset-0" style={{ clipPath: 'url(#paw-toes-clip)' }}>
-                  <Image
-                    src="/hero-dog.jpg"
-                    alt=""
-                    fill
-                    priority
-                    quality={85}
-                    sizes="(min-width: 1024px) 70vw, 100vw"
-                    style={{ objectFit: 'cover', objectPosition: '0% 0%', transform: 'scale(1.7)', transformOrigin: '0% 0%' }}
-                  />
-                </div>
-
-                {/*
-                  Pad: the owner and dog must fit inside the oval uncropped, which a full-bleed
-                  photo cannot do (its bottom edge would have to sit below the pad). So a blurred
-                  copy fills the pad and the sharp photo is placed at a smaller scale on top
-                  with feathered edges. Numbers come from fitting the subject bbox into the pad ellipse.
-                */}
-                <div className="absolute inset-0 overflow-hidden" style={{ clipPath: 'url(#paw-pad-clip)' }}>
-                  <Image
-                    src="/hero-dog.jpg"
-                    alt=""
-                    fill
-                    quality={60}
-                    sizes="(min-width: 1024px) 40vw, 100vw"
-                    style={{ objectFit: 'cover', objectPosition: '100% 55%', filter: 'blur(16px)', transform: 'scale(1.2)' }}
-                  />
-                  <div
-                    className="absolute"
-                    style={{
-                      left: '17%',
-                      top: '33%',
-                      width: '60%',
-                      height: '54%',
-                      WebkitMaskImage:
-                        'linear-gradient(to right, transparent, #000 4%, #000 96%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 90%, transparent)',
-                      WebkitMaskComposite: 'source-in',
-                      maskImage:
-                        'linear-gradient(to right, transparent, #000 4%, #000 96%, transparent), linear-gradient(to bottom, transparent, #000 4%, #000 90%, transparent)',
-                      maskComposite: 'intersect',
-                    }}
-                  >
-                    <Image
-                      src="/hero-dog.jpg"
-                      alt="Opiekunka siedząca z psem na skale nad morzem o zachodzie słońca"
-                      fill
-                      priority
-                      quality={85}
-                      sizes="(min-width: 1024px) 45vw, 100vw"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  </div>
-                  {/* Warm-black base so the feathered photo edge never reads as a smudge */}
-                  <div
-                    className="absolute inset-0"
-                    style={{ background: 'linear-gradient(to bottom, transparent 62%, rgba(27,20,17,0.9) 100%)' }}
-                  />
-                </div>
+              <div className="absolute inset-[2.5%]" style={{ clipPath: 'url(#paw-clip)' }}>
+                <PawMosaic />
               </div>
             </div>
           </FadeIn>
 
           {/* Headline cradled on both sides of the paw (desktop); stacked below on mobile */}
           <div
-            className="hidden lg:block absolute left-0 bottom-[6%] w-[26%]"
+            className="hidden lg:block absolute left-0 top-[3%] w-[26%]"
             aria-hidden="true"
           >
             <FadeIn delay={0.3} direction="right">
@@ -136,7 +128,7 @@ export function HeroSection() {
             </FadeIn>
           </div>
           <div
-            className="hidden lg:block absolute right-0 bottom-[6%] w-[26%] text-right"
+            className="hidden lg:block absolute right-0 top-[3%] w-[26%] text-right"
             aria-hidden="true"
           >
             <FadeIn delay={0.4} direction="left">
