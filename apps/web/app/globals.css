@@ -100,53 +100,55 @@
 }
 
 /* ---------------------------------------------------------------------------
- * Running dog (see RunningDog.tsx). Pivot points are SVG user units from the dog's viewBox.
- * Stride = 0.7s. Diagonal legs are half a stride apart; the far-side legs trail slightly.
+ * Running chihuahua puppy (see RunningDog.tsx). Pivot points are SVG user units of its viewBox.
+ * Stride = 0.55s: a puppy scurries quickly. Diagonal legs are half a stride apart,
+ * far-side legs trail slightly.
  * ------------------------------------------------------------------------- */
 .dog-anim * {
   transform-box: view-box;
 }
-.dog-anim .dog-bob { animation: dog-bob 0.35s ease-in-out infinite; }
-.dog-anim .dog-pitch { transform-origin: 140px 90px; animation: dog-pitch 0.7s ease-in-out infinite; }
-.dog-anim .dog-shadow { transform-origin: 150px 175px; animation: dog-shadow 0.35s ease-in-out infinite; }
+.dog-anim .dog-bob { animation: dog-bob 0.275s ease-in-out infinite; }
+.dog-anim .dog-pitch { transform-origin: 150px 112px; animation: dog-pitch 0.55s ease-in-out infinite; }
+.dog-anim .dog-shadow { transform-origin: 160px 175px; animation: dog-shadow 0.275s ease-in-out infinite; }
 
-.dog-anim .dog-leg { animation: dog-swing 0.7s ease-in-out infinite; }
-.dog-anim .dog-knee { animation: dog-fold 0.7s ease-in-out infinite; }
-.dog-anim .dog-leg-nf { transform-origin: 195px 90px; animation-delay: 0s; }
-.dog-anim .dog-knee-nf { transform-origin: 196px 126px; animation-delay: 0s; }
-.dog-anim .dog-leg-fr { transform-origin: 177px 90px; animation-delay: -0.08s; }
-.dog-anim .dog-knee-fr { transform-origin: 178px 126px; animation-delay: -0.08s; }
-.dog-anim .dog-leg-nh { transform-origin: 90px 86px; animation-delay: -0.35s; }
-.dog-anim .dog-knee-nh { transform-origin: 96px 124px; animation-delay: -0.35s; }
-.dog-anim .dog-leg-fh { transform-origin: 106px 86px; animation-delay: -0.43s; }
-.dog-anim .dog-knee-fh { transform-origin: 108px 124px; animation-delay: -0.43s; }
+.dog-anim .dog-leg { animation: dog-swing 0.55s ease-in-out infinite; }
+.dog-anim .dog-knee { animation: dog-fold 0.55s ease-in-out infinite; }
+.dog-anim .dog-leg-nf { transform-origin: 188px 120px; animation-delay: 0s; }
+.dog-anim .dog-knee-nf { transform-origin: 188px 146px; animation-delay: 0s; }
+.dog-anim .dog-leg-fr { transform-origin: 176px 120px; animation-delay: -0.06s; }
+.dog-anim .dog-knee-fr { transform-origin: 176px 146px; animation-delay: -0.06s; }
+.dog-anim .dog-leg-nh { transform-origin: 116px 114px; animation-delay: -0.275s; }
+.dog-anim .dog-knee-nh { transform-origin: 114px 144px; animation-delay: -0.275s; }
+.dog-anim .dog-leg-fh { transform-origin: 130px 114px; animation-delay: -0.34s; }
+.dog-anim .dog-knee-fh { transform-origin: 128px 144px; animation-delay: -0.34s; }
 
-.dog-anim .dog-head { transform-origin: 208px 74px; animation: dog-nod 0.7s ease-in-out infinite; }
-.dog-anim .dog-ear { transform-origin: 226px 38px; animation: dog-ear 0.35s ease-in-out infinite alternate; }
-.dog-anim .dog-ear-far { transform-origin: 240px 34px; animation: dog-ear-far 0.35s ease-in-out infinite alternate -0.12s; }
-.dog-anim .dog-tongue { transform-origin: 259px 69px; animation: dog-tongue 0.35s ease-in-out infinite alternate; }
-.dog-anim .dog-tag { transform-origin: 224px 79px; animation: dog-tag 0.35s ease-in-out infinite alternate; }
-.dog-anim .dog-tail { transform-origin: 82px 74px; animation: dog-wag 0.2s ease-in-out infinite alternate; }
-.dog-anim .dog-tail-tip { transform-origin: 44px 40px; animation: dog-wag-tip 0.2s ease-in-out infinite alternate -0.07s; }
+.dog-anim .dog-head { transform-origin: 208px 96px; animation: dog-nod 0.55s ease-in-out infinite; }
+/* Erect ears are stiff at the base: they tip back and bounce, they do not flap like floppy ears */
+.dog-anim .dog-ear { transform-origin: 218px 54px; animation: dog-ear 0.275s ease-in-out infinite alternate; }
+.dog-anim .dog-ear-far { transform-origin: 244px 52px; animation: dog-ear-far 0.275s ease-in-out infinite alternate -0.1s; }
+.dog-anim .dog-tongue { transform-origin: 251px 98px; animation: dog-tongue 0.275s ease-in-out infinite alternate; }
+.dog-anim .dog-tag { transform-origin: 214px 111px; animation: dog-tag 0.275s ease-in-out infinite alternate; }
+.dog-anim .dog-tail { transform-origin: 104px 102px; animation: dog-wag 0.18s ease-in-out infinite alternate; }
+.dog-anim .dog-tail-tip { transform-origin: 76px 66px; animation: dog-wag-tip 0.18s ease-in-out infinite alternate -0.06s; }
 
-@keyframes dog-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-@keyframes dog-pitch { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
-@keyframes dog-shadow { 0%, 100% { transform: scaleX(1); opacity: 0.22; } 50% { transform: scaleX(0.9); opacity: 0.14; } }
-/* Upper segment: +40deg = reaching back, -40deg = reaching forward (dog faces right) */
-@keyframes dog-swing { 0%, 100% { transform: rotate(40deg); } 50% { transform: rotate(-40deg); } }
+@keyframes dog-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@keyframes dog-pitch { 0%, 100% { transform: rotate(-1.8deg); } 50% { transform: rotate(1.8deg); } }
+@keyframes dog-shadow { 0%, 100% { transform: scaleX(1); opacity: 0.22; } 50% { transform: scaleX(0.88); opacity: 0.13; } }
+/* Upper segment: +38deg = reaching back, -38deg = reaching forward (the dog faces right) */
+@keyframes dog-swing { 0%, 100% { transform: rotate(38deg); } 50% { transform: rotate(-38deg); } }
 /* Lower segment folds while the leg recovers forward, extends again while it pushes back */
 @keyframes dog-fold {
   0%, 100% { transform: rotate(8deg); }
-  25% { transform: rotate(68deg); }
+  25% { transform: rotate(66deg); }
   50% { transform: rotate(4deg); }
   75% { transform: rotate(0deg); }
 }
 @keyframes dog-nod { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(4deg); } }
-@keyframes dog-ear { from { transform: rotate(4deg); } to { transform: rotate(30deg); } }
-@keyframes dog-ear-far { from { transform: rotate(-4deg); } to { transform: rotate(16deg); } }
-@keyframes dog-tongue { from { transform: rotate(-7deg) scaleY(0.94); } to { transform: rotate(9deg) scaleY(1.06); } }
+@keyframes dog-ear { from { transform: rotate(-2deg); } to { transform: rotate(16deg); } }
+@keyframes dog-ear-far { from { transform: rotate(-4deg); } to { transform: rotate(11deg); } }
+@keyframes dog-tongue { from { transform: rotate(-8deg) scaleY(0.94); } to { transform: rotate(10deg) scaleY(1.07); } }
 @keyframes dog-tag { from { transform: rotate(-16deg); } to { transform: rotate(18deg); } }
-@keyframes dog-wag { from { transform: rotate(-17deg); } to { transform: rotate(21deg); } }
+@keyframes dog-wag { from { transform: rotate(-16deg); } to { transform: rotate(20deg); } }
 @keyframes dog-wag-tip { from { transform: rotate(-12deg); } to { transform: rotate(14deg); } }
 
 /* The dog crosses the trail, enters and leaves outside the section edge */

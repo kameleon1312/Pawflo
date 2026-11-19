@@ -1,26 +1,31 @@
 /**
- * Hand-built running dog (side view, facing right) as layered SVG.
+ * Chihuahua puppy running (side view, facing right) as layered SVG.
  *
- * Why one SVG with CSS animation instead of video/Lottie: zero extra bytes of dependencies,
- * crisp at any size, and every joint is its own group, so the gait stays physically plausible:
+ * Breed traits modelled on purpose: oversized round "apple" skull, short muzzle, huge upright
+ * bat ears with pink inner, big dark glossy eyes, thin short legs with small paws, round belly,
+ * and a thin sickle tail curled up over the back. Coat is fawn with a pale chest and belly.
+ *
+ * Why one SVG with CSS animation instead of video/Lottie: no dependency, crisp at any size.
+ * Every joint is its own group so the gait stays plausible:
  *   - each leg = upper segment swinging at shoulder/hip + lower segment folding at elbow/hock
- *   - diagonal pairs run in anti-phase (gallop), far-side legs are darker to give depth
- *   - body bobs at twice the stride rate, head nods, ears lag behind (flap), tail wags fast
- * Pivot points are given in SVG user units in globals.css (.dog-* rules); keep them in sync
- * with the coordinates below.
+ *   - diagonal pairs run in anti-phase (a puppy's quick scurry), far-side legs are darker
+ *   - body bobs at twice the stride rate, head nods, erect ears bounce, tail wags fast
+ * Pivot points live in globals.css (.dog-* rules) in the same user units; keep them in sync.
  */
 
 const FUR = 'url(#dog-fur)';
-const FUR_FAR = '#8F4220';
-const FUR_EAR = '#9C4A20';
-const CREAM = '#F6E7D1';
+const FUR_FAR = '#B98348';
+const CREAM = '#FBEBD0';
 const INK = '#1B1411';
+const EAR_INNER = '#F2B6A6';
+
+const BODY_PATH =
+  'M100 112 C98 94 112 86 140 86 C168 86 192 88 202 100 C210 112 204 134 184 140 C166 144 130 144 112 140 C102 136 100 124 100 112 Z';
 
 type LegProps = {
   className: string;
   lowerClass: string;
   far?: boolean;
-  /** upper segment path, lower segment path, paw center x (paw y is shared) */
   upper: string;
   lower: string;
   pawX: number;
@@ -33,13 +38,13 @@ function Leg({ className, lowerClass, far, upper, lower, pawX }: LegProps) {
       <path d={upper} fill={fill} />
       <g className={lowerClass}>
         <path d={lower} fill={fill} />
-        {/* Paw with a lighter sock, as on a tolling retriever */}
-        <ellipse cx={pawX} cy={166} rx={12} ry={6.5} fill={far ? '#D9C6AC' : CREAM} />
+        {/* Small pale paw with tiny toe lines */}
+        <ellipse cx={pawX} cy={168.5} rx={8.5} ry={4.6} fill={far ? '#E5CFA9' : CREAM} />
         <path
-          d={`M${pawX - 4} 164 v4 M${pawX + 1} 163.5 v4.5 M${pawX + 6} 164 v4`}
+          d={`M${pawX - 3} 167 v3 M${pawX + 0.5} 166.6 v3.6 M${pawX + 4} 167 v3`}
           stroke={INK}
-          strokeOpacity={0.25}
-          strokeWidth={1}
+          strokeOpacity={0.22}
+          strokeWidth={0.9}
           strokeLinecap="round"
         />
       </g>
@@ -50,42 +55,39 @@ function Leg({ className, lowerClass, far, upper, lower, pawX }: LegProps) {
 export function RunningDog({ className }: { className?: string }) {
   return (
     <svg
-      viewBox="0 0 320 190"
+      viewBox="50 0 230 190"
       className={`dog-anim ${className ?? ''}`}
       aria-hidden="true"
       focusable="false"
     >
       <defs>
         <linearGradient id="dog-fur" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#D8793F" />
-          <stop offset="0.55" stopColor="#C0622B" />
-          <stop offset="1" stopColor="#A04A20" />
+          <stop offset="0" stopColor="#EDBE86" />
+          <stop offset="0.6" stopColor="#DDA567" />
+          <stop offset="1" stopColor="#C98B4E" />
         </linearGradient>
-        <clipPath id="dog-body">
-          <path d="M72 84 C70 64 92 52 128 52 C156 52 178 50 198 58 C214 64 220 82 214 98 C208 112 190 116 168 116 L108 116 C86 116 73 104 72 84 Z" />
-        </clipPath>
         <radialGradient id="dog-shine" cx="0.4" cy="0.2" r="0.8">
-          <stop offset="0" stopColor="#FFD2A3" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#FFD2A3" stopOpacity="0" />
+          <stop offset="0" stopColor="#FFF1D6" stopOpacity="0.6" />
+          <stop offset="1" stopColor="#FFF1D6" stopOpacity="0" />
         </radialGradient>
+        <clipPath id="dog-body">
+          <path d={BODY_PATH} />
+        </clipPath>
       </defs>
 
       {/* Ground shadow: pulses with the stride */}
-      <ellipse className="dog-shadow" cx={150} cy={175} rx={92} ry={5.5} fill={INK} opacity={0.22} />
+      <ellipse className="dog-shadow" cx={160} cy={175} rx={68} ry={5} fill={INK} opacity={0.22} />
 
       <g className="dog-bob">
         <g className="dog-pitch">
-          {/* Tail: base segment wags, the feathered tip trails slightly behind */}
+          {/* Thin sickle tail: base wags, the pale tip trails */}
           <g className="dog-tail">
             <path
-              d="M80 76 C58 70 42 52 36 30 C33 21 41 17 46 24 C53 40 66 56 86 64 Z"
+              d="M104 106 C84 100 70 84 72 66 C73 57 81 57 82 64 C82 78 92 88 108 94 Z"
               fill={FUR}
             />
             <g className="dog-tail-tip">
-              <path
-                d="M40 36 C36 26 36 18 41 15 C47 14 49 22 46 30 C44 35 42 38 40 36 Z"
-                fill={CREAM}
-              />
+              <path d="M72 70 C70 62 71 55 76 55 C80 56 81 62 79 68 C77 72 74 74 72 70 Z" fill={CREAM} />
             </g>
           </g>
 
@@ -94,141 +96,134 @@ export function RunningDog({ className }: { className?: string }) {
             className="dog-leg dog-leg-fr"
             lowerClass="dog-knee dog-knee-fr"
             far
-            upper="M168 88 C166 80 188 80 188 90 L186 126 C184 134 172 134 170 126 Z"
-            lower="M171 124 C171 120 185 120 185 124 L183 160 L172 160 Z"
-            pawX={178}
+            upper="M169 120 C169 114 183 114 183 120 L181 146 C180 150 172 150 171 146 Z"
+            lower="M171 144 C171 141 181 141 181 144 L180 166 L172 166 Z"
+            pawX={176}
           />
           <Leg
             className="dog-leg dog-leg-fh"
             lowerClass="dog-knee dog-knee-fh"
             far
-            upper="M86 84 C82 72 118 68 126 84 L126 124 C122 134 100 134 94 122 Z"
-            lower="M98 122 C98 118 120 118 120 122 L114 160 L102 160 Z"
-            pawX={108}
+            upper="M118 112 C116 102 142 102 142 114 L138 144 C134 150 122 150 120 142 Z"
+            lower="M122 142 C122 139 134 139 134 142 L132 166 L123 166 Z"
+            pawX={127}
           />
 
-          {/* Body */}
+          {/* Round puppy body */}
+          <path d={BODY_PATH} fill={FUR} />
+          <path d={BODY_PATH} fill="url(#dog-shine)" />
+          {/* Belly: paler, because a chihuahua's underside is lighter and softly round */}
           <path
-            d="M72 84 C70 64 92 52 128 52 C156 52 178 50 198 58 C214 64 220 82 214 98 C208 112 190 116 168 116 L108 116 C86 116 73 104 72 84 Z"
-            fill={FUR}
+            d="M104 126 C130 146 176 146 202 124 L202 150 L104 150 Z"
+            fill={CREAM}
+            opacity={0.8}
+            clipPath="url(#dog-body)"
           />
           <path
-            d="M72 84 C70 64 92 52 128 52 C156 52 178 50 198 58 C214 64 220 82 214 98 C208 112 190 116 168 116 L108 116 C86 116 73 104 72 84 Z"
-            fill="url(#dog-shine)"
-          />
-          {/* Belly shade and saddle highlight */}
-          <path d="M88 108 C120 118 170 118 204 106 L204 118 L88 118 Z" fill="#3A1306" opacity={0.22} clipPath="url(#dog-body)" />
-          <path
-            d="M96 62 C124 54 160 54 188 62"
+            d="M110 94 C134 88 168 88 192 96"
             fill="none"
-            stroke="#F2A56E"
-            strokeOpacity={0.55}
+            stroke="#FFE2B8"
+            strokeOpacity={0.7}
             strokeWidth={3}
             strokeLinecap="round"
             clipPath="url(#dog-body)"
           />
-          {/* Chest */}
-          <ellipse cx={204} cy={98} rx={13} ry={16} fill={CREAM} opacity={0.95} />
-
-          {/* Neck */}
-          <path d="M190 64 C198 44 214 38 228 42 L234 86 C220 94 204 96 192 90 Z" fill={FUR} />
+          {/* Pale chest */}
+          <ellipse cx={197} cy={113} rx={12} ry={17} fill={CREAM} opacity={0.95} />
 
           {/* Near-side legs */}
           <Leg
             className="dog-leg dog-leg-nf"
             lowerClass="dog-knee dog-knee-nf"
-            upper="M184 88 C182 80 206 80 206 90 L204 126 C202 134 190 134 188 126 Z"
-            lower="M189 124 C189 120 203 120 203 124 L201 160 L190 160 Z"
-            pawX={196}
+            upper="M181 120 C181 114 195 114 195 120 L193 146 C192 150 184 150 183 146 Z"
+            lower="M183 144 C183 141 193 141 193 144 L192 166 L184 166 Z"
+            pawX={188}
           />
           <Leg
             className="dog-leg dog-leg-nh"
             lowerClass="dog-knee dog-knee-nh"
-            upper="M70 84 C66 72 104 68 112 84 L112 124 C108 134 86 134 80 122 Z"
-            lower="M84 122 C84 118 106 118 106 122 L100 160 L88 160 Z"
-            pawX={94}
+            upper="M104 112 C102 102 128 102 128 114 L124 144 C120 150 108 150 106 142 Z"
+            lower="M108 142 C108 139 120 139 120 142 L118 166 L109 166 Z"
+            pawX={113}
           />
 
-          {/* Collar in the brand coral, with a swinging tag */}
-          <path
-            d="M200 64 C212 74 228 78 240 72"
-            fill="none"
-            stroke="#F08A8A"
-            strokeWidth={7}
-            strokeLinecap="round"
-          />
-          <path
-            d="M200 62 C212 72 228 76 240 70"
-            fill="none"
-            stroke="#FFC9C9"
-            strokeOpacity={0.6}
-            strokeWidth={1.6}
-            strokeLinecap="round"
-          />
-          <g className="dog-tag">
-            <circle cx={224} cy={84} r={4.6} fill={CREAM} />
-            <circle cx={224} cy={84} r={4.6} fill="none" stroke="#D85F5F" strokeWidth={1.2} />
-            <circle cx={222.8} cy={82.8} r={1.1} fill="#FFFFFF" opacity={0.8} />
-          </g>
+          {/* Neck */}
+          <path d="M190 100 C196 86 208 80 220 82 L226 108 C214 116 200 116 192 110 Z" fill={FUR} />
 
-          {/* Head */}
+          {/* Head: oversized round skull */}
           <g className="dog-head">
-            {/* Far ear peeks above the skull */}
+            {/* Far ear, behind the skull */}
             <g className="dog-ear-far">
-              <path d="M238 32 C246 21 260 23 260 34 C260 41 253 43 246 43 Z" fill="#7F3A19" />
+              <path d="M232 52 C236 32 248 14 260 10 C266 26 262 44 252 58 Z" fill="#C98B4E" />
+              <path d="M240 50 C243 36 250 24 257 20 C259 32 256 44 250 54 Z" fill={EAR_INNER} opacity={0.85} />
             </g>
 
-            <path
-              d="M206 62 C204 44 216 30 234 30 C246 30 254 36 262 42 C270 47 282 49 285 56 C288 63 281 68 272 68 C264 68 258 70 252 75 C244 84 220 86 212 76 C208 72 206 67 206 62 Z"
-              fill={FUR}
-            />
-            <path
-              d="M206 62 C204 44 216 30 234 30 C246 30 254 36 262 42 C270 47 282 49 285 56 C288 63 281 68 272 68 C264 68 258 70 252 75 C244 84 220 86 212 76 C208 72 206 67 206 62 Z"
-              fill="url(#dog-shine)"
-            />
-            {/* Lighter muzzle and blaze */}
-            <path
-              d="M256 38 C263 45 272 50 283 57 C277 62 268 58 262 54 C256 50 252 44 256 38 Z"
-              fill={CREAM}
-              opacity={0.85}
-            />
-            <ellipse cx={266} cy={65} rx={13} ry={5.5} fill={CREAM} opacity={0.6} />
+            {/* Skull + short muzzle + chin as one soft silhouette */}
+            <g>
+              <ellipse cx={226} cy={78} rx={33} ry={31} fill={FUR} />
+              <ellipse cx={252} cy={90} rx={16} ry={11.5} fill={FUR} />
+              <ellipse cx={246} cy={99} rx={11} ry={6} fill={FUR} />
+              <ellipse cx={226} cy={78} rx={33} ry={31} fill="url(#dog-shine)" />
+              {/* Lighter muzzle, tan points above the eye (a classic chihuahua marking) */}
+              <ellipse cx={254} cy={92} rx={13} ry={9.5} fill={CREAM} opacity={0.9} />
+              <circle cx={239} cy={57} r={2.4} fill="#C98B4E" />
+              <circle cx={248} cy={60} r={1.9} fill="#C98B4E" />
+            </g>
 
-            {/* Tongue, then mouth line on top of it */}
+            {/* Tongue, then the smiling mouth on top */}
             <g className="dog-tongue">
-              <path d="M260 69 C266 71 267 84 261 87 C255 88 253 78 255 70 Z" fill="#F08A8A" />
-              <path d="M260 72 C260.5 76 260.5 81 260 84" stroke="#D85F5F" strokeWidth={1} fill="none" strokeLinecap="round" />
+              <path d="M252 98 C258 100 259 112 253 114 C247 115 246 106 248 99 Z" fill="#F08A8A" />
+              <path d="M252 101 C252.5 105 252.5 109 252 111" stroke="#D85F5F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
             </g>
             <path
-              d="M276 66 C268 71 259 70 252 72"
+              d="M266 94 C260 100 252 100 245 97"
               fill="none"
               stroke={INK}
-              strokeWidth={1.8}
+              strokeWidth={1.7}
               strokeLinecap="round"
             />
 
-            {/* Nose, eye, brow */}
-            <ellipse cx={283.5} cy={56} rx={5.2} ry={4.2} fill={INK} />
-            <ellipse cx={282} cy={54.4} rx={1.6} ry={1} fill="#FFFFFF" opacity={0.55} />
-            <ellipse cx={245} cy={46} rx={3.3} ry={3.9} fill={INK} />
-            <circle cx={246.2} cy={44.4} r={1.2} fill="#FFFFFF" />
-            <path d="M239 40 C243 38 248 38.5 251 41" fill="none" stroke="#7F3A19" strokeWidth={1.6} strokeLinecap="round" />
+            {/* Nose: small, glossy black */}
+            <ellipse cx={265} cy={84} rx={5.4} ry={4.2} fill={INK} />
+            <ellipse cx={263.6} cy={82.4} rx={1.7} ry={1} fill="#FFFFFF" opacity={0.6} />
+            {/* Whisker dots */}
+            <circle cx={257} cy={91} r={0.9} fill={INK} opacity={0.35} />
+            <circle cx={261} cy={93} r={0.9} fill={INK} opacity={0.35} />
 
-            {/* Near ear: long, floppy, lags and flicks with the wind */}
+            {/* Big glossy eye: the biggest cuteness lever */}
+            <ellipse cx={240} cy={74} rx={8} ry={9} fill={INK} />
+            <ellipse cx={240} cy={74} rx={8} ry={9} fill="none" stroke="#5A3A22" strokeWidth={1} />
+            <circle cx={243} cy={70.5} r={3} fill="#FFFFFF" />
+            <circle cx={237.5} cy={78.5} r={1.5} fill="#FFFFFF" opacity={0.75} />
+
+            {/* Near ear: huge, erect, with pink inner, bounces with each stride */}
             <g className="dog-ear">
-              <path
-                d="M226 36 C212 32 198 42 198 60 C198 74 208 84 218 80 C226 74 230 56 230 42 Z"
-                fill={FUR_EAR}
-              />
-              <path
-                d="M222 42 C212 42 204 52 205 64 C206 72 211 76 214 74"
-                fill="none"
-                stroke="#6B2E12"
-                strokeOpacity={0.45}
-                strokeWidth={2}
-                strokeLinecap="round"
-              />
+              <path d="M204 60 C194 42 192 20 200 4 C214 8 228 26 234 48 Z" fill="#D4975A" />
+              <path d="M207 56 C200 42 199 26 204 14 C214 20 224 32 228 46 Z" fill={EAR_INNER} />
+              <path d="M209 50 C205 40 205 30 208 22" fill="none" stroke="#E79D8D" strokeWidth={1.5} strokeLinecap="round" />
             </g>
+          </g>
+
+          {/* Collar and tag sit over the neck, under the head's chin */}
+          <path
+            d="M198 100 C208 110 222 112 232 106"
+            fill="none"
+            stroke="#F08A8A"
+            strokeWidth={6}
+            strokeLinecap="round"
+          />
+          <path
+            d="M198 98.5 C208 108.5 222 110.5 232 104.5"
+            fill="none"
+            stroke="#FFC9C9"
+            strokeOpacity={0.6}
+            strokeWidth={1.4}
+            strokeLinecap="round"
+          />
+          <g className="dog-tag">
+            <circle cx={214} cy={116} r={4.4} fill={CREAM} />
+            <circle cx={214} cy={116} r={4.4} fill="none" stroke="#D85F5F" strokeWidth={1.2} />
+            <circle cx={212.9} cy={114.9} r={1} fill="#FFFFFF" opacity={0.85} />
           </g>
         </g>
       </g>
