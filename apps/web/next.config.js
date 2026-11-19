@@ -14,10 +14,10 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https:",
+      "img-src 'self' data: blob: https:",
       "font-src 'self' https://fonts.gstatic.com",
       // Allow Sentry error reporting endpoint
-      "connect-src 'self' https://*.ingest.de.sentry.io https://*.ingest.sentry.io",
+      "connect-src 'self' blob: https://*.ingest.de.sentry.io https://*.ingest.sentry.io",
       "frame-ancestors 'none'",
       // Allow Sentry Session Replay worker
       "worker-src 'self' blob:",

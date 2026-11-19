@@ -1,4 +1,5 @@
 import { FadeIn } from '@/components/ui/FadeIn';
+import { DogShowcase } from '@/components/marketing/DogShowcase';
 
 const STEPS = [
   {
@@ -44,6 +45,8 @@ export function HowItWorksSection() {
             </FadeIn>
           ))}
         </ol>
+
+        <DogShowcase />
       </div>
     </section>
   );
