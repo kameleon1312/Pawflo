@@ -1,5 +1,4 @@
 import { FadeIn } from '@/components/ui/FadeIn';
-import { RunningDog } from '@/components/marketing/RunningDog';
 
 const STEPS = [
   {
@@ -45,14 +44,6 @@ export function HowItWorksSection() {
             </FadeIn>
           ))}
         </ol>
-
-        {/* The trail: an inset groove the dog runs along, tying the three steps into one walk */}
-        <div className="relative mt-20 h-32 sm:h-40" aria-hidden="true">
-          <div className="absolute inset-x-0 bottom-2 h-3 rounded-full shadow-neu-inset" />
-          <div className="dog-runner absolute bottom-[5px] w-44 sm:w-56">
-            <RunningDog className="w-full h-auto" />
-          </div>
-        </div>
       </div>
     </section>
   );
